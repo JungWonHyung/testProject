@@ -35,6 +35,10 @@ endif()
 
 set(FRAMEWORKS CoreGraphics CoreFoundation QuartzCore UIKit OpenGLES Security CFNetwork GLKit)
 
+include_directories(${PROJECT_SOURCE_DIR}/ratio)
+include_directories(${PROJECT_SOURCE_DIR}/platforms/ios/src)
+include_directories(${PROJECT_SOURCE_DIR}/core/include/tangram/tile)
+
 # Tell SQLiteCpp to not build its own copy of SQLite, we will use the system library instead.
 set(SQLITECPP_INTERNAL_SQLITE OFF CACHE BOOL "")
 
@@ -42,6 +46,8 @@ set(SQLITECPP_INTERNAL_SQLITE OFF CACHE BOOL "")
 add_subdirectory(${PROJECT_SOURCE_DIR}/core)
 
 set(SOURCES
+    ${PROJECT_SOURCE_DIR}/ratio/RoadTile.cpp
+    ${PROJECT_SOURCE_DIR}/platforms/ios/src/ratio_platform.mm
     ${PROJECT_SOURCE_DIR}/platforms/common/platform_gl.cpp
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/iosPlatform.mm
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGHelpers.mm
@@ -58,6 +64,9 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGMapViewController.mm)
 
 set(FRAMEWORK_HEADERS
+    ${PROJECT_SOURCE_DIR}/ratio/ratio_coord.h
+    ${PROJECT_SOURCE_DIR}/ratio/RoadTile.h
+    ${PROJECT_SOURCE_DIR}/core/include/tangram/tile/tileID.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/framework/TangramMap.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGGeoPolyline.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGGeoPolygon.h
@@ -72,6 +81,7 @@ set(FRAMEWORK_HEADERS
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGMapViewController.h)
 
 set(HEADERS
+    ${PROJECT_SOURCE_DIR}/ratio/ratio_platform.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/iosPlatform.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGMarkerPickResult+Internal.h
     ${PROJECT_SOURCE_DIR}/platforms/ios/src/TangramMap/TGLabelPickResult+Internal.h
