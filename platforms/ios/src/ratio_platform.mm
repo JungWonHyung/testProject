@@ -22,12 +22,12 @@
 namespace ratiobike {
 
     static std::shared_ptr<Tangram::Platform> dummy_platform;
+    __strong TGMapViewController* _viewController;
 
     std::shared_ptr<Tangram::Platform> get_platform()
         {
             if(!dummy_platform) {
-                __strong TGMapViewController* _viewController
-                    = [[FakeViewController alloc] initWithNibName: nil bundle: nil];
+                _viewController = [[FakeViewController alloc] initWithNibName: nil bundle: nil];
                 dummy_platform = std::static_pointer_cast<Tangram::Platform>
                     (std::make_shared<Tangram::iOSPlatform>(_viewController));
             }
