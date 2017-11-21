@@ -82,12 +82,11 @@ endif
 ifdef TANGRAM_IOS_FRAMEWORK_SLIM
 	IOS_FRAMEWORK_PATH = ${IOS_FRAMEWORK_SIM_BUILD_DIR}/lib/${CONFIG}/TangramMap.framework
 	IOS_FRAMEWORK_DEVICE_ARCHS = ''
-	IOS_FRAMEWORK_SIM_ARCHS = 'x86_64'
 else
 	IOS_FRAMEWORK_PATH = ${IOS_FRAMEWORK_UNIVERSAL_BUILD_DIR}/${CONFIG}/TangramMap.framework
-	IOS_FRAMEWORK_DEVICE_ARCHS = 'armv7 armv7s arm64'
-	IOS_FRAMEWORK_SIM_ARCHS = 'i386 x86_64'
+	IOS_FRAMEWORK_DEVICE_ARCHS = 'armv7 arm64'
 endif
+IOS_FRAMEWORK_SIM_ARCHS = 'x86_64'
 
 BENCH_CMAKE_PARAMS = \
 	-DBENCHMARK=1 \
@@ -301,7 +300,7 @@ ifndef TANGRAM_IOS_FRAMEWORK_SLIM
 ifeq (, $(shell which xcpretty))
 	${IOS_FRAMEWORK_BUILD}
 else
-	${IOS_FRAMEWORK_BUILD} | ${XCPRETTY}
+	set -euo pipefail; ${IOS_FRAMEWORK_BUILD} | ${XCPRETTY}
 endif
 endif
 
@@ -312,7 +311,7 @@ ios-framework-sim: cmake-ios-framework-sim
 ifeq (, $(shell which xcpretty))
 	${IOS_FRAMEWORK_SIM_BUILD}
 else
-	${IOS_FRAMEWORK_SIM_BUILD} | ${XCPRETTY}
+	set -euo pipefail; ${IOS_FRAMEWORK_SIM_BUILD} | ${XCPRETTY}
 endif
 
 ios-framework-universal: ios-framework ios-framework-sim

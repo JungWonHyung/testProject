@@ -1,9 +1,11 @@
 #include "glfwApp.h"
-#include "data/clientGeoJsonSource.h"
 #include "debug/textDisplay.h"
 #include <GLFW/glfw3.h>
-#include "log.h"
 #include <cstdlib>
+
+#ifndef BUILD_NUM_STRING
+#define BUILD_NUM_STRING ""
+#endif
 
 namespace Tangram {
 
@@ -26,11 +28,11 @@ std::shared_ptr<Platform> platform;
 
 std::string sceneFile = "scene.yaml";
 std::string sceneYaml;
+std::string mapzenApiKey;
 
 std::string markerStylingPath = "layers.touch.point.draw.icons";
 std::string polylineStyle = "{ style: lines, interactive: true, color: red, width: 20px, order: 5000 }";
 
-std::string mapzenApiKey;
 
 GLFWwindow* main_window = nullptr;
 Tangram::Map* map = nullptr;
@@ -53,9 +55,7 @@ Tangram::MarkerID marker = 0;
 Tangram::MarkerID poiMarker = 0;
 Tangram::MarkerID polyline = 0;
 
-bool keepRunning = true;
-
-void loadSceneFile(bool setPosition = false) {
+void loadSceneFile(bool setPosition) {
     std::vector<SceneUpdate> updates;
 
     if (!mapzenApiKey.empty()) {
@@ -126,10 +126,16 @@ void create(std::shared_ptr<Platform> p, int w, int h) {
         map = new Tangram::Map(platform);
     }
 
+    // Build a version string for the window title.
+    char versionString[256] = { 0 };
+    std::snprintf(versionString, sizeof(versionString), "Tangram ES %d.%d.%d " BUILD_NUM_STRING,
+        TANGRAM_VERSION_MAJOR, TANGRAM_VERSION_MINOR, TANGRAM_VERSION_PATCH);
+
     // Create a windowed mode window and its OpenGL context
     glfwWindowHint(GLFW_SAMPLES, 2);
+    glfwWindowHint(GLFW_STENCIL_BITS, 8);
     if (!main_window) {
-        main_window = glfwCreateWindow(width, height, "Tangram ES", NULL, NULL);
+        main_window = glfwCreateWindow(width, height, versionString, NULL, NULL);
     }
     if (!main_window) {
         glfwTerminate();
@@ -161,7 +167,7 @@ void run() {
     double lastTime = glfwGetTime();
 
     // Loop until the user closes the window
-    while (keepRunning && !glfwWindowShouldClose(main_window)) {
+    while (!glfwWindowShouldClose(main_window)) {
 
         double currentTime = glfwGetTime();
         double delta = currentTime - lastTime;
@@ -184,9 +190,9 @@ void run() {
 }
 
 void stop(int) {
-    if (keepRunning) {
+    if (!glfwWindowShouldClose(main_window)) {
         logMsg("shutdown\n");
-        keepRunning = false;
+        glfwSetWindowShouldClose(main_window, 1);
         glfwPostEmptyEvent();
     } else {
         logMsg("killed!\n");
@@ -241,10 +247,15 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 
     if ((time - last_time_released) < double_tap_time) {
         // Double tap recognized
-        Tangram::LngLat p;
-        map->screenPositionToLngLat(x, y, &p.longitude, &p.latitude);
-        map->setPositionEased(p.longitude, p.latitude, 1.f);
-
+        const float duration = 0.5f;
+        Tangram::LngLat tapped, current;
+        map->screenPositionToLngLat(x, y, &tapped.longitude, &tapped.latitude);
+        map->getPosition(current.longitude, current.latitude);
+        map->setZoomEased(map->getZoom() + 1.f, duration, EaseType::quint);
+        map->setPositionEased(
+            0.5 * (tapped.longitude + current.longitude),
+            0.5 * (tapped.latitude + current.latitude),
+            duration, EaseType::quint);
     } else if ((time - last_time_pressed) < single_tap_time) {
         // Single tap recognized
         Tangram::LngLat p;
@@ -459,7 +470,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 void dropCallback(GLFWwindow* window, int count, const char** paths) {
 
-    sceneFile = std::string(paths[0]);
+    sceneFile = "file://" + std::string(paths[0]);
     sceneYaml.clear();
 
     loadSceneFile();

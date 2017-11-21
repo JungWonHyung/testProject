@@ -45,7 +45,7 @@ public:
     Impl(std::shared_ptr<Platform> _platform) :
         platform(_platform),
         inputHandler(_platform, view),
-        scene(std::make_shared<Scene>(_platform)),
+        scene(std::make_shared<Scene>(_platform, Url())),
         tileWorker(_platform, MAX_WORKERS),
         tileManager(_platform, tileWorker) {}
 
@@ -76,7 +76,8 @@ public:
 
     std::shared_ptr<Scene> scene;
     std::shared_ptr<Scene> lastValidScene;
-    std::atomic<int32_t> sceneLoadTasks;
+    std::atomic<int32_t> sceneLoadTasks{0};
+    std::condition_variable sceneLoadCondition;
 
     // NB: Destruction of (managed and loading) tiles must happen
     // before implicit destruction of 'scene' above!
@@ -92,6 +93,18 @@ public:
     std::vector<SelectionQuery> selectionQueries;
 
     SceneReadyCallback onSceneReady = nullptr;
+
+    void sceneLoadBegin() {
+        sceneLoadTasks++;
+    }
+
+    void sceneLoadEnd() {
+        sceneLoadTasks--;
+        assert(sceneLoadTasks >= 0);
+
+        sceneLoadCondition.notify_one();
+    }
+
 };
 
 void Map::Impl::setEase(EaseField _f, Ease _e) {
@@ -184,7 +197,10 @@ SceneID Map::loadScene(std::shared_ptr<Scene> scene,
                        const std::vector<SceneUpdate>& _sceneUpdates) {
 
     {
-        std::lock_guard<std::mutex> lock(impl->sceneMutex);
+        std::unique_lock<std::mutex> lock(impl->sceneMutex);
+
+        impl->sceneLoadCondition.wait(lock, [&]{ return impl->sceneLoadTasks == 0; });
+
         impl->lastValidScene.reset();
     }
 
@@ -246,7 +262,7 @@ SceneID Map::loadSceneYamlAsync(const std::string& _yaml, const std::string& _re
 SceneID Map::loadSceneAsync(std::shared_ptr<Scene> nextScene,
                             const std::vector<SceneUpdate>& _sceneUpdates) {
 
-    impl->sceneLoadTasks++;
+    impl->sceneLoadBegin();
 
     runAsyncTask([nextScene, _sceneUpdates, this](){
 
@@ -258,7 +274,7 @@ SceneID Map::loadSceneAsync(std::shared_ptr<Scene> nextScene,
                     if (!nextScene->errors.empty()) { err = nextScene->errors.front(); }
                     impl->onSceneReady(nextScene->id, &err);
                 }
-                impl->sceneLoadTasks--;
+                impl->sceneLoadEnd();
                 return;
             }
 
@@ -276,8 +292,8 @@ SceneID Map::loadSceneAsync(std::shared_ptr<Scene> nextScene,
                     }
                     if (impl->onSceneReady) { impl->onSceneReady(nextScene->id, nullptr); }
                 });
-            impl->sceneLoadTasks--;
 
+            impl->sceneLoadEnd();
             platform->requestRender();
         });
 
@@ -294,12 +310,12 @@ std::shared_ptr<Platform>& Map::getPlatform() {
 
 SceneID Map::updateSceneAsync(const std::vector<SceneUpdate>& _sceneUpdates) {
 
+    impl->sceneLoadBegin();
+
     std::vector<SceneUpdate> updates = _sceneUpdates;
 
     auto nextScene = std::make_shared<Scene>();
     nextScene->useScenePosition = false;
-
-    impl->sceneLoadTasks++;
 
     runAsyncTask([nextScene, updates = std::move(updates), this](){
 
@@ -308,7 +324,7 @@ SceneID Map::updateSceneAsync(const std::vector<SceneUpdate>& _sceneUpdates) {
                     SceneError err {{}, Error::no_valid_scene};
                     impl->onSceneReady(nextScene->id, &err);
                 }
-                impl->sceneLoadTasks--;
+                impl->sceneLoadEnd();
                 return;
             }
 
@@ -325,7 +341,7 @@ SceneID Map::updateSceneAsync(const std::vector<SceneUpdate>& _sceneUpdates) {
                     if (!nextScene->errors.empty()) { err = nextScene->errors.front(); }
                     impl->onSceneReady(nextScene->id, &err);
                 }
-                impl->sceneLoadTasks--;
+                impl->sceneLoadEnd();
                 return;
             }
 
@@ -346,8 +362,8 @@ SceneID Map::updateSceneAsync(const std::vector<SceneUpdate>& _sceneUpdates) {
                     }
                     if (impl->onSceneReady) { impl->onSceneReady(nextScene->id, nullptr); }
                 });
-            impl->sceneLoadTasks--;
 
+            impl->sceneLoadEnd();
             platform->requestRender();
         });
 
@@ -375,15 +391,15 @@ void Map::resize(int _newWidth, int _newHeight) {
 
 bool Map::update(float _dt) {
 
-    // Wait until font resources are fully loaded
-    if (impl->scene->pendingFonts > 0) {
-        platform->requestRender();
+    impl->jobQueue.runJobs();
+
+    // Wait until font and texture resources are fully loaded
+    if (impl->scene->pendingFonts > 0 ||
+        impl->scene->pendingTextures > 0) {
         return false;
     }
 
     FrameInfo::beginUpdate();
-
-    impl->jobQueue.runJobs();
 
     impl->scene->updateTime(_dt);
 
@@ -492,6 +508,11 @@ void Map::render() {
     // Run render-thread tasks
     impl->renderState.jobQueue.runJobs();
 
+
+    for (const auto& style : impl->scene->styles()) {
+        style->onBeginFrame(impl->renderState);
+    }
+
     // Render feature selection pass to offscreen framebuffer
     if (impl->selectionQueries.size() > 0 || drawSelectionBuffer) {
         impl->selectionBuffer->applyAsRenderTarget(impl->renderState);
@@ -499,15 +520,10 @@ void Map::render() {
         std::lock_guard<std::mutex> lock(impl->tilesMutex);
 
         for (const auto& style : impl->scene->styles()) {
-            style->onBeginDrawSelectionFrame(impl->renderState, impl->view, *(impl->scene));
 
-            for (const auto& tile : impl->tileManager.getVisibleTiles()) {
-                style->drawSelectionFrame(impl->renderState, *tile);
-            }
-
-            for (const auto& marker : impl->markerManager.markers()) {
-                style->drawSelectionFrame(impl->renderState, *marker);
-            }
+            style->drawSelectionFrame(impl->renderState, impl->view, *(impl->scene),
+                                      impl->tileManager.getVisibleTiles(),
+                                      impl->markerManager.markers());
         }
 
         std::vector<SelectionColorRead> colorCache;
@@ -523,16 +539,12 @@ void Map::render() {
     // Setup default framebuffer for a new frame
     glm::vec2 viewport(impl->view.getWidth(), impl->view.getHeight());
     FrameBuffer::apply(impl->renderState, impl->renderState.defaultFrameBuffer(),
-                       viewport, impl->scene->background().asIVec4());
+                       viewport, impl->scene->background().toColorF());
 
     if (drawSelectionBuffer) {
         impl->selectionBuffer->drawDebug(impl->renderState, viewport);
         FrameInfo::draw(impl->renderState, impl->view, impl->tileManager);
         return;
-    }
-
-    for (const auto& style : impl->scene->styles()) {
-        style->onBeginFrame(impl->renderState);
     }
 
     {
@@ -541,18 +553,11 @@ void Map::render() {
         // Loop over all styles
         for (const auto& style : impl->scene->styles()) {
 
-            style->onBeginDrawFrame(impl->renderState, impl->view, *(impl->scene));
+            style->draw(impl->renderState,
+                        impl->view, *(impl->scene),
+                        impl->tileManager.getVisibleTiles(),
+                        impl->markerManager.markers());
 
-            // Loop over all tiles in m_tileSet
-            for (const auto& tile : impl->tileManager.getVisibleTiles()) {
-                style->draw(impl->renderState, *tile);
-            }
-
-            for (const auto& marker : impl->markerManager.markers()) {
-                style->draw(impl->renderState, *marker);
-            }
-
-            style->onEndDrawFrame();
         }
     }
 
@@ -606,7 +611,7 @@ void Map::getPosition(double& _lon, double& _lat) {
 
     glm::dvec2 meters(impl->view.getPosition().x, impl->view.getPosition().y);
     glm::dvec2 degrees = impl->view.getMapProjection().MetersToLonLat(meters);
-    _lon = degrees.x;
+    _lon = LngLat::wrapLongitude(degrees.x);
     _lat = degrees.y;
 
 }
@@ -709,7 +714,7 @@ bool Map::screenPositionToLngLat(double _x, double _y, double* _lng, double* _la
     glm::dvec3 eye = impl->view.getPosition();
     glm::dvec2 meters(_x + eye.x, _y + eye.y);
     glm::dvec2 lngLat = impl->view.getMapProjection().MetersToLonLat(meters);
-    *_lng = lngLat.x;
+    *_lng = LngLat::wrapLongitude(lngLat.x);
     *_lat = lngLat.y;
 
     return (intersection >= 0);

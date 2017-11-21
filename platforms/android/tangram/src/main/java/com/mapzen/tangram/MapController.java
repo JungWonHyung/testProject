@@ -1221,8 +1221,7 @@ public class MapController implements Renderer {
 
     private synchronized native void nativeSetDefaultBackgroundColor(long mapPtr, float r, float g, float b);
 
-    private native void nativeOnUrlSuccess(byte[] rawDataBytes, long callbackPtr);
-    private native void nativeOnUrlFailure(long callbackPtr);
+    private native void nativeOnUrlComplete(long mapPtr, long requestHandle, byte[] rawDataBytes, String errorMessage);
 
     synchronized native long nativeAddTileSource(long mapPtr, String name, boolean generateCentroid);
     synchronized native void nativeRemoveTileSource(long mapPtr, long sourcePtr);
@@ -1291,53 +1290,64 @@ public class MapController implements Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+
+        if (mapPointer <= 0) {
+            // No native instance is initialized, so stop here. This can happen during Activity
+            // shutdown when the map has been disposed but the View hasn't been destroyed yet.
+            return;
+        }
+
         nativeSetPixelScale(mapPointer, displayMetrics.density);
         nativeResize(mapPointer, width, height);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
+        if (mapPointer <= 0) {
+            // No native instance is initialized, so stop here. This can happen during Activity
+            // shutdown when the map has been disposed but the View hasn't been destroyed yet.
+            return;
+        }
+
         nativeSetupGL(mapPointer);
     }
 
     // Networking methods
     // ==================
     @Keep
-    void cancelUrlRequest(String url) {
+    void cancelUrlRequest(long requestHandle) {
         if (httpHandler == null) {
             return;
         }
-        httpHandler.onCancel(url);
+        httpHandler.onCancel(requestHandle);
     }
 
     @Keep
-    boolean startUrlRequest(final String url, final long callbackPtr) throws Exception {
+    void startUrlRequest(final String url, final long requestHandle) {
         if (httpHandler == null) {
-            return false;
+            return;
         }
 
-        httpHandler.onRequest(url, new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                android.util.Log.e("Tangram", "Failed url request: " + url + " " + e.toString());
-                nativeOnUrlFailure(callbackPtr);
+                nativeOnUrlComplete(mapPointer, requestHandle, null, e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 
                 if (!response.isSuccessful()) {
-                    android.util.Log.e("Tangram", "Failed url request: " + url +
-                            " Unexpected response code: " + response);
-                    nativeOnUrlFailure(callbackPtr);
-                    return;
+                    nativeOnUrlComplete(mapPointer, requestHandle, null, response.message());
+                    throw new IOException("Unexpected response code: " + response + " for URL: " + url);
                 }
                 byte[] bytes = response.body().bytes();
-
-                nativeOnUrlSuccess(bytes, callbackPtr);
+                nativeOnUrlComplete(mapPointer, requestHandle, bytes, null);
             }
-        });
-        return true;
+        };
+
+        httpHandler.onRequest(url, callback, requestHandle);
     }
 
     // Called from JNI on worker or render-thread.
