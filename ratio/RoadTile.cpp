@@ -111,7 +111,7 @@ namespace ratiobike {
 
         tileCacheBegin = tileCacheEnd = make_shared<RoadTile>(TileID(0,0,0));
         
-        return this;
+        //return this;
     }
 
     /*

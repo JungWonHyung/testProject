@@ -137,14 +137,21 @@ FontSourceHandle iOSPlatform::systemFont(const std::string& _name, const std::st
     return FontSourceHandle(font.fontName.UTF8String, true);
 }
 
-UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
+ extern __strong TGHttpHandler* dummy_handler;
+
+ UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
     __strong TGMapViewController* mapViewController = m_viewController;
 
-    if (!mapViewController) {
-        return false;
-    }
+    TGHttpHandler* httpHandler;
 
-    TGHttpHandler* httpHandler = [mapViewController httpHandler];
+    if (!mapViewController) {
+      /* CHEOLGI FOR DUMMY */
+      // return false;
+      httpHandler = dummy_handler;
+    } else {
+
+      httpHandler = [mapViewController httpHandler];
+    }
 
     if (!httpHandler) {
         return false;

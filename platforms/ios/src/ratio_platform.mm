@@ -1,35 +1,22 @@
 #include "ratio_platform.h"
 #include "TangramMap/iosPlatform.h"
 
-@interface FakeViewController : TGMapViewController
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil;
-@end
-
-@implementation FakeViewController
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self != nil) {
-        self.httpHandler = [[TGHttpHandler alloc] initWithCachePath:@"/tangram_cache"
-                                                cacheMemoryCapacity:4*1024*1024
-                                                  cacheDiskCapacity:30*1024*1024];
-    }
-    return self;
+namespace Tangram {
+    __strong TGHttpHandler* dummy_handler;
 }
-
-@end
-
 namespace ratiobike {
 
     static std::shared_ptr<Tangram::Platform> dummy_platform;
-    __strong TGMapViewController* _viewController;
+
 
     std::shared_ptr<Tangram::Platform> get_platform()
         {
             if(!dummy_platform) {
-                _viewController = [[FakeViewController alloc] initWithNibName: nil bundle: nil];
+              Tangram::dummy_handler = [[TGHttpHandler alloc] initWithCachePath:@"/tangram_cache"
+                                                     cacheMemoryCapacity:4*1024*1024
+                                                       cacheDiskCapacity:30*1024*1024];
                 dummy_platform = std::static_pointer_cast<Tangram::Platform>
-                    (std::make_shared<Tangram::iOSPlatform>(_viewController));
+                    (std::make_shared<Tangram::iOSPlatform>(nullptr));
             }
     
             return dummy_platform;

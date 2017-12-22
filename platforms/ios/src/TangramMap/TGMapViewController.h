@@ -793,6 +793,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)animateToTilt:(float)radians withDuration:(float)seconds withEaseType:(TGEaseType)easeType;
 
+/* CHEOLGI for dummy controller */
+- (instancetype)init;
+
 NS_ASSUME_NONNULL_END
 
 @end

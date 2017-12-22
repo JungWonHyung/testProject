@@ -500,3 +500,49 @@ void AndroidPlatform::sceneReadyCallback(SceneID id, const SceneError* sceneErro
 }
 
 } // namespace Tangram
+
+typedef void(*voidfunc)(void);
+    
+namespace ratiobike {
+    using namespace Tangram;
+    
+    std::shared_ptr<Tangram::Platform> get_platform()
+    {
+        return nullptr;
+    }
+
+    void delegateToMainThread(std::function<void(void)> func)
+    {
+        JniThreadBinding jniEnv(jvm);
+        jclass cls = jniEnv->FindClass("com/mapzen/tangram/NativeMainRunnable");
+        assert(cls != nullptr);
+
+        jmethodID mid = jniEnv->GetStaticMethodID(cls, "runInMainThread", "(L)V");
+        assert(mid != nullptr);
+
+        jlong funcLong = (jlong) func.target<voidfunc>();
+        
+        jniEnv->CallStaticVoidMethod(cls, mid, funcLong);
+        
+        return;
+    }
+
+}
+
+extern "C" {
+
+    JNIEXPORT void JNICALL Java_com_mapzen_tangram_NativeMainRunnable_nativeRun(JNIEnv* jniEnv, jobject obj, jlong funcPtr) {
+        //assert(funcPtr > 0);
+
+        if(funcPtr > 0) {
+            voidfunc func = (voidfunc)funcPtr;
+
+            func();
+        }
+    }
+    
+    const char * testString() {
+        return "asset:///scene.yaml";
+    }
+}
+
