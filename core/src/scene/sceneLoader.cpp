@@ -182,7 +182,7 @@ bool SceneLoader::applyConfig(const std::shared_ptr<Platform>& _platform, const 
     // Instantiate built-in styles
     _scene->styles().emplace_back(new PolygonStyle("polygons"));
     _scene->styles().emplace_back(new PolylineStyle("lines"));
-    _scene->styles().emplace_back(new DebugTextStyle("debugtext", std::make_shared<FontContext>(_platform), true));
+    _scene->styles().emplace_back(new DebugTextStyle("debugtext", _scene->fontContext(), true));
     _scene->styles().emplace_back(new TextStyle("text", _scene->fontContext(), true));
     _scene->styles().emplace_back(new DebugStyle("debug"));
     _scene->styles().emplace_back(new PointStyle("points", _scene->fontContext()));
@@ -587,7 +587,7 @@ std::shared_ptr<Texture> SceneLoader::fetchTexture(const std::shared_ptr<Platfor
         texture = std::make_shared<Texture>(std::vector<char>(), options, generateMipmaps);
 
         scene->pendingTextures++;
-        scene->startUrlRequest(platform, url, [&, scene, texture](UrlResponse response) {
+        scene->startUrlRequest(platform, url, [&, url, scene, texture](UrlResponse response) {
                 if (response.error) {
                     LOGE("Error retrieving URL '%s': %s", url.string().c_str(), response.error);
                 } else {
@@ -632,7 +632,8 @@ void SceneLoader::loadTexture(const std::shared_ptr<Platform>& platform, const s
                               const std::shared_ptr<Scene>& scene) {
 
     const std::string& name = node.first.Scalar();
-    Node textureConfig = node.second;
+    const Node& textureConfig = node.second;
+
     if (!textureConfig.IsMap()) {
         LOGW("Invalid texture node '%s', skipping.", name.c_str());
         return;
@@ -661,13 +662,19 @@ void SceneLoader::loadTexture(const std::shared_ptr<Platform>& platform, const s
     if (Node sprites = textureConfig["sprites"]) {
         auto atlas = std::make_unique<SpriteAtlas>();
 
+        float density = 1.f;
+        if (Node d = textureConfig["density"]) {
+            double val;
+            if (getDouble(d, val)) { density = val; }
+        }
+
         for (auto it = sprites.begin(); it != sprites.end(); ++it) {
 
             const Node sprite = it->second;
             const std::string& spriteName = it->first.Scalar();
 
             if (sprite) {
-                glm::vec4 desc = parseVec<glm::vec4>(sprite);
+                glm::vec4 desc = parseVec<glm::vec4>(sprite) * density;
                 glm::vec2 pos = glm::vec2(desc.x, desc.y);
                 glm::vec2 size = glm::vec2(desc.z, desc.w);
 
@@ -1562,6 +1569,11 @@ void SceneLoader::parseStyleParams(Node params, const std::shared_ptr<Scene>& sc
             // NB: Flatten parameter map
             parseStyleParams(value, scene, key, out);
 
+            break;
+        }
+        case NodeType::Null: {
+            // Handles the case, when null style param value is used to unset a merged style param
+            out.emplace_back(StyleParam::getKey(key));
             break;
         }
         default:
