@@ -34,6 +34,3 @@
 [submodule "external/SQLiteCpp"]
 	path = core/deps/SQLiteCpp
 	url = https://github.com/SRombauts/SQLiteCpp.git
-[submodule "ratio-ride-core"]
-	path = ratio-ride-core
-	url = https://github.com/ratio-bike/ratio-ride-core.git
