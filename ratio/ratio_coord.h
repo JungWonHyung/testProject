@@ -13,21 +13,21 @@ extern "C"
     /*
      * TYPE DEFINITION of MercPoint and RatioLngLat
      */
-#define INVALID_LNG_LAT RatioLngLat{.longitude=NAN, .latitude=NAN}
-
 typedef struct RatioLngLat {
     double longitude;
     double latitude;
 } RatioLngLat;
 
+    extern const RatioLngLat INVALID_LNG_LAT; // {.longitude=NAN, .latitude=NAN}
+
     inline bool isValidLngLat(const RatioLngLat* lnglat) { return lnglat != NULL && !isnan(lnglat->longitude); };
     
-#define INVALID_MERC_POINT MercPoint{.x = 0, .y = 0}
-
 typedef struct MercPoint {
     int32_t x;
     int32_t y;
 } MercPoint;
+
+    extern const MercPoint INVALID_MERC_POINT;
 
     /*
      * Coordinates on EARTH
