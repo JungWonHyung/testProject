@@ -1,7 +1,7 @@
 add_definitions(-DTANGRAM_ANDROID)
 
 # RATIO
-include(${PROJECT_SOURCE_DIR}/ratio-ride-core/ratio.cmake)
+include(${PROJECT_SOURCE_DIR}/../ratio-ride-core/ratio.cmake)
 # end of RATIO
 
 # load core library

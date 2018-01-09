@@ -27,7 +27,6 @@ using namespace std;
 namespace ratiobike {
     inline void MercPointSetAtTile(MercPoint& p, TileID& tileId, glm::vec3 pt)
     {
-        MercPoint p2;
         p.x = (tileId.x << (32 - tileId.z)) + (pt.x * (1 << (32 - tileId.z))) - 1;
         p.y = (tileId.y << (32 - tileId.z)) + (1 - pt.y) * (1 << (32 - tileId.z));
 
@@ -58,7 +57,7 @@ namespace ratiobike {
         void collectTile(const TileID& tileIdToSearch,
                           std::shared_ptr<RoadTileRequester> requester);
 
-        const shared_ptr<RoadTile>& getTileInCache(const TileID& tileId);
+        shared_ptr<RoadTile> getTileInCache(const TileID& tileId);
         
         std::map<TileID, std::shared_ptr<RoadTile>> activeTiles;
 
@@ -118,12 +117,12 @@ namespace ratiobike {
      * Tile Cache management
      */
     
-    const shared_ptr<RoadTile>& RoadTileManager_impl::getTileInCache(const TileID& tileId)
+    shared_ptr<RoadTile> RoadTileManager_impl::getTileInCache(const TileID& tileId)
     {
         auto tileFoundIter = this->tileCacheMap.find(tileId);
         
         if(tileFoundIter != this->tileCacheMap.end()) {
-            auto tile = tileFoundIter->second;
+             shared_ptr<RoadTile> tile = tileFoundIter->second;
             
             if(tile != tileCacheBegin) {
                 // move tile to front
@@ -257,8 +256,6 @@ namespace ratiobike {
             // 만일 cache에 없다면 requesters에 요청자를 추가한 후 tileTask를 뒤져본다.
             requesters.emplace(tileIdToSearch, requester);
                 
-            auto itTask = this->tileTasks.find(tileIdToSearch);
-                
             //있다면 requester를 추가했으므로 tile이 도착하면 연락이 올 것이다.
             if( this->tileTasks.find(tileIdToSearch) == this->tileTasks.end() ) {
                 // 없다면 task를 만들어서 추가한다.
@@ -301,7 +298,7 @@ namespace ratiobike {
         impl->collectTile(tileIdToSearch, requester);
     }
 
-    const shared_ptr<RoadTile>& RoadTileManager::getTileInCache(const TileID& tileId)
+    shared_ptr<RoadTile> RoadTileManager::getTileInCache(const TileID& tileId)
     {
         return impl->getTileInCache(tileId);
     }

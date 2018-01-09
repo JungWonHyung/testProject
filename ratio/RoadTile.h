@@ -106,7 +106,7 @@ namespace ratiobike {
         void collectTile(const TileID& tileIdToSearch,
                           std::shared_ptr<RoadTileRequester> requester);
 
-        const shared_ptr<RoadTile>& getTileInCache(const TileID& tileId);
+        shared_ptr<RoadTile> getTileInCache(const TileID& tileId);
         
         /** @brief 필요한 타일을 요청하고 이를 가져오는 역할을 하는 객체
          *  @param type         tile의 형태 (e.g. MVT, togoJson)
