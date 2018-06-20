@@ -1,0 +1,1084 @@
+import:
+    - refill-icons.yaml
+#- color-high-contrast.yaml
+    - label-5.yaml
+
+global:
+    feature_order: function () { return feature.sort_rank; }
+    sdk_mapzen_api_key: ''
+
+    # HIGH CONTRAST CUSTOM GLOBALS
+    black_color:                  [0.000,0.000,0.000]
+    dark_color:                   [0.000,0.000,0.000]
+    mid_color:                    [0.000,0.000,0.000]
+    midlight_color:               [0.000,0.000,0.000]
+    extralight_color:             [0.100,0.100,0.100]
+    light_color:                  [0.200,0.200,0.200]
+    lighter_color:                [0.600,0.600,0.600]
+    lightest_color:               [0.800,0.800,0.800]
+    ultralight_color:             [0.850,0.850,0.850]
+    offwhite_color:               [0.950,0.950,0.950]
+    white_color:                  [1.000,1.000,1.000]
+    transparent:                  [0.850,0.850,0.850,0.25]
+    route_line:                   [0.700,0.196,0.507]
+
+    hi_contrast_mid:              [0.300,0.300,0.300]
+    hi_contrast_midlight:         [0.500,0.500,0.500]
+    hi_contrast_offwhite:         [0.980,0.980,0.980]
+
+    text_fill:                    global.black_color
+    text_stroke:                  [1.00,1.00,1.00,0.75]
+
+    playas_color:                 [0.950,0.950,0.950]
+    no_texture_water_color:       [0.150,0.150,0.150]
+
+    # TERRAIN SHADING COLORS
+    shading_earth_tint_color:     global.lighter_color
+    shading_earth_fill_color:     global.white_color
+    shading_landuse_tint_color:   [0.450,0.450,0.450]
+    shading_landuse_fill_color:   [0.985,0.985,0.985]
+
+    shading_river_tint_color:     global.hi_contrast_midlight
+    shading_river_fill_color:     [0.900,0.900,0.900]
+
+    shading_dark_earth_tint_color:     [0.450,0.450,0.450]
+    shading_dark_earth_fill_color:     global.white_color
+    shading_dark_landuse_tint_color:   global.hi_contrast_mid
+    shading_dark_landuse_fill_color:   [0.970,0.970,0.970]
+
+    # TERRAIN PATTERN COLORS
+    pattern_earth_dot_color:              global.white_color
+    pattern_earth_fill_color:             [0.970,0.970,0.970]
+    pattern_landuse_dot_color:            global.white_color
+    pattern_landuse_fill_color:           [0.930,0.930,0.930]
+
+    pattern_dark_earth_dot_color:              global.white_color
+    pattern_dark_earth_fill_color:             [0.930,0.930,0.930]
+    pattern_dark_landuse_dot_color:            global.white_color
+    pattern_dark_landuse_fill_color:           [0.870,0.870,0.870]
+
+    pattern_river_tint:           [0.650,0.650,0.650]
+    pattern_river_fill:           [0.900,0.900,0.900]
+    pattern_dark_river_tint:           [0.610,0.610,0.610]
+    pattern_dark_river_fill:           global.ultralight_color
+
+    # BATHYMETRY SHADING COLORS
+    shading_bathymetry_tint_color:          global.black_color
+    shading_bathymetry_fill_color:          [0.200,0.200,0.200]
+    shading_dark_bathymetry_tint_color:     global.black_color
+    shading_dark_bathymetry_fill_color:     [0.225,0.225,0.225]
+
+    # BATHYMETRY PATTERN COLORS
+    pattern_bathymetry_color:   [0.280,0.280,0.280]
+    pattern_bathymetry_bg_color:    [0.150,0.150,0.150]
+    pattern_dark_bathymetry_color:   [0.320,0.320,0.320]
+    pattern_dark_bathymetry_bg_color:    [0.100,0.100,0.100]
+
+    # To make Refill's colorize-able icons play nice with other styles
+    # we re-state the global here in the Refill color theme to use colorized_icons.
+    # This allows the Refill color theme to import *after* say Walkabout icons
+    # and then colorize Walkabout's icons. But when imported before Walkabout icons
+    # then Walkabout icons would not be colorized as Walkabout icons re-set the
+    # global to "" (null).
+
+    sdk_icon_color_style: colorized_icons
+
+    sdk_terrain_shading_earth_style: terrain-shading-earth
+    sdk_terrain_shading_landuse_style: terrain-shading-landuse
+    sdk_terrain_shading_bathymetry_style: terrain-shading-bathymetry
+fonts:
+    Montserrat:
+        url: https://fonts.gstatic.com/s/montserrat/v7/zhcz-_WihjSQC0oHJ9TCYL3hpw3pgy2gAi-Ip7WPMi0.woff
+    Open Sans:
+        - weight: 400
+          url: https://fonts.gstatic.com/s/opensans/v13/wMws1cEtxWZc6AZZIpiqWALUuEpTyoUstqEm5AMlJo4.woff
+        - weight: 400
+          style: italic
+          url: https://fonts.gstatic.com/s/opensans/v13/O4NhV7_qs9r9seTo7fnsVLO3LdcAZYWl9Si6vvxL-qU.woff
+
+scene:
+    background:
+        color: '#f0ebeb'
+cameras:
+    iso-camera:
+        # Manhattan
+        position: [-74.00976419448854, 40.70532700869127, 16]
+        type: isometric
+        axis: [0, 1]
+        active: false
+    perspective-camera:
+        # Manhattan
+        position: [-74.00976419448854, 40.70532700869127, 16]
+        type: perspective
+        fov: 45
+        max_tilt: [[2, 0], [16, 90]]
+        active: true
+
+lights:
+    light1:
+        type: directional
+        origin: world
+        direction: [1, 1, -1]
+        diffuse: [.3, .3, .3, 1.]
+        ambient: [0.7, 0.7, 0.7, 1.]
+
+textures:
+    pois:
+        url: img/poi_icons_32.png
+        sprites:
+            plane: [0, 0, 32, 32]
+            tree: [0, 185, 32, 32]
+            sunburst: [0, 629, 32, 32]
+            restaurant: [0, 777, 32, 32]
+            cafe: [0, 814, 32, 32]
+            museum: [0, 518, 32, 32]
+            bar: [0, 887, 32, 32]
+            train: [0, 74, 32, 32]
+            bus: [0, 148, 32, 32]
+            hospital: [0, 444, 32, 32]
+            parking: [0, 1073, 32, 32]
+            info: [0, 1110, 32, 32]
+            hotel: [0, 259, 32, 32]
+            bookstore: [0, 333, 32, 32]
+            shield: [0, 1142, 32, 32]
+            arrow: [1, 1175, 22, 22]
+
+styles:
+    icons:
+        base: points
+        texture: pois
+    heightglow:
+        base: polygons
+        blend: translucent
+        blend_order: -2
+        lighting: vertex
+        shaders:
+            blocks:
+                color: "color.rgb += vec3(worldPosition().z / 800.);"
+    heightglowline:
+        base: lines
+        blend_order: -1
+        mix: heightglow
+    dashed:
+        base: lines
+        dash: [3.0, 0.3]
+    transit-lines:
+        base: lines
+        blend: overlay
+        blend_order: -2
+        shaders:
+            blocks:
+                filter: |
+                    color.rgb *= 1.25; // pump up the colors
+                    color.a = 0.5;     // translucent
+        draw: # default draw parameters
+            color: function() { return feature.colour || 'gray'; }
+            width: 6px
+            outline:
+                color: [.8, .8, .8]
+                width: 1px
+            interactive: true
+    text-blend-order:
+        base: text
+        blend_order: 1
+
+sources:
+    osm:
+        type: MVT
+        url: https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf
+        # url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt
+        max_zoom: 14
+        url_params:
+            key: "NquccGVsw2OiFdrhUgsB"
+            # api_key: "A8Qbu-9tSDezIwU2pH2tQw"
+
+layers:
+#    landcover:
+#        data: { source: osm }
+#        draw:
+#            polygons:
+#                order: 0
+#                color: darkgreen
+    water:
+        data: { source: osm }
+        draw:
+            polygons:
+                style: waves
+                order: global.feature_order
+                color: [[0, global.lightest_color], [12, global.lighter_color]]
+    boundary:
+        data: { source: osm }
+        # country subdivisions (states, provinces)
+        draw:
+            lines:
+                order: global.feature_order
+        country:
+            filter:
+                any:
+                    - class: country
+                    - admin_level: [2,5]
+            draw:
+                country-outerline:
+                    style: lines
+                    order: function() { return (feature.sort_rank -1); }
+                    color: blue
+                    width: [[0, 0px], [4, 2px], [8, 5px], [14, 7px], [17, 14m]]
+                lines:
+                    color: global.white_color
+                    width: 0.75px #[[0, 0px], [5, 0px], [6, 1px], [14, 2px]]
+            water:
+                filter: { maritime: 1 }
+                draw:
+                    country-outerline:
+                        visible: false
+                    lines:
+                        visible: false
+        other_country_boundary_disputed_etc:
+            filter: { class: [disputed, indefinite, indeterminate, lease_limit, line_of_control, overlay_limit] }
+            draw:
+                lines:
+                    dash: [1.25, 1.25]
+                    order: global.feature_order
+                    color: global.light_color
+                    width: [[1,0.2px],[9,1.5px],[17,10m]]
+            disputed:
+                filter: { class: [disputed, line_of_control] }
+                draw:
+                    lines:
+                        dash: [2.0, 1.0]
+                        order: global.feature_order
+                        color: global.light_color
+                        width: [[1, 0.5px], [9, 2.5px], [17,14m]]
+
+        region:
+            filter:
+                any:
+                    - class: [region,macroregion]
+                    - class_detail: [3,4]
+            draw:
+                lines:
+                    color: global.light_color
+                    # width: [[0, 0.5px], [9, 2px], [14, 4px], [16, 6.5px], [17, 16m]]
+                    width: [[0, 0.5px], [14, 3px], [16, 5px], [17, 16m]]
+
+            water:
+                filter: { maritime: 1 }
+                draw:
+                    lines:
+                        visible: false
+
+            dash-borders:
+                filter:
+                    $zoom: { min: 7 }
+                draw:
+                    lines:
+                        dash: [7.0, 2.0]
+
+            early:
+                filter: { not: { min_zoom: [1,2] }, $zoom: { max: 8 } }
+                draw:
+                    lines:
+                        visible: false
+    place:
+        data: { source: osm}
+        filter:
+            name: true
+        draw:
+            mapzen_icon_library:
+                visible: false
+                text:
+                    text_source: global.ux_language_text_source
+                    visible: false
+                    buffer: 3px
+                    font:
+                        family: global.text_font_family
+                        fill: global.black_color
+            # NOTE: This is a hack for localities because of an icon & text bug, see note below
+            text-blend-order:
+                text_source: global.ux_language_text_source
+                visible: false    # labels are enabled by each layer below
+                buffer: 3px
+                font:
+                    family: global.text_font_family
+                    fill: global.black_color
+            # END NOTE
+
+        country:
+            filter:
+                class: country
+                $zoom: { min: 2, max: 9 }
+            draw:
+                text-blend-order:
+                    priority: 3
+                    visible: global.text_visible_admin
+                    text_source: global.ux_language_text_source
+                    font:
+                        fill: global.black_color
+                        weight: 600
+                        stroke: { color: global.text_stroke, width: 4px }
+            country-z2-3:
+                filter:
+                    $zoom: [2,3]
+                draw:
+                    text-blend-order:
+                        priority: 10
+                        buffer: 10px
+                        font:
+                            weight: 300
+                            size: 11px
+                early-ones-z2:
+                    filter:
+                        $zoom: [2]
+                        not: { name: [United States of America,Brasil,中华人民共和国,Россия,Canada,Kalaallit Nunaat,Ísland,Australia,India,日本,Guam,Indonesia,South Africa,مصر,Nigeria,Kenya] }
+                    draw:
+                        text-blend-order:
+                            visible: false
+                early-ones-z3:
+                    filter:
+                        $zoom: [3]
+                        name: [Nederland,Luxembourg,Liechtenstein,San Marino,Civitatis Vaticanæ,Crna Gora,Македонија,The Gambia,Burundi,Swaziland,الإمارات العربية المتحدة,العراق,Singapore,El Salvador,Belize,Trinidad and Tobago, Saint Lucia, Montserrat,Anguilla,República Dominicana,Bahamas,British Virgin Islands,Antigua and Barbuda,Grenada,Sint Maarten,Saint Kitts and Nevis,Cayman Islands,België - Belgique - Belgien,Deutschland,España]
+                    draw:
+                        text-blend-order:
+                            visible: false
+            country-z4:
+                filter:
+                    $zoom: [4]
+                draw:
+                    text-blend-order:
+                        buffer: 10px
+                        priority: 8
+                        font:
+                            weight: 300
+                            size: 13px
+                early-ones-z4:
+                    filter:
+                        name: [Nederland,Luxembourg,Liechtenstein,San Marino,Civitatis Vaticanæ,Crna Gora,Македонија,The Gambia,Burundi,Swaziland,الإمارات العربية المتحدة,العراق,Singapore,El Salvador,Belize,Trinidad and Tobago, Saint Lucia, Montserrat,Anguilla,República Dominicana,Bahamas,British Virgin Islands,Antigua and Barbuda,Grenada,Sint Maarten,Saint Kitts and Nevis,Cayman Islands,België - Belgique - Belgien,Deutschland,España,Magyarország,Österreich,Polska,Хуссар Ирыстон,Аҧсны - Абхазия]
+                    draw:
+                        text-blend-order:
+                            visible: false
+            country-z5:
+                filter:
+                    $zoom: [5]
+                draw:
+                    text-blend-order:
+                        priority: 8
+                        font:
+                            size: 13px
+                early-ones-z5:
+                    filter:
+                        # South Ossetia and Abkhazia aren't countries (they are disputed areas)
+                        - name: [Luxembourg,Liechtenstein,San Marino,Civitatis Vaticanæ,El Salvador,Belize,België - Belgique - Belgien,"Хуссар Ирыстон - Южная Осетия","Хуссар Ирыстон","Аҧсны - Абхазия","Լեռնային Ղարաբաղի Հանրապետությու (Nagorno-Karabakh Republic)"]
+                        - population: { max: 5000000 }
+                    draw:
+                        text-blend-order:
+                            visible: false
+            country-z6:
+                filter:
+                    $zoom: [6]
+                draw:
+                    text-blend-order:
+                        priority: 8
+                        font:
+                            size: 14px
+                small-ones-z6:
+                    filter:
+                        # South Ossetia and Abkhazia aren't countries (they are disputed areas)
+                        - name: [Luxembourg,Liechtenstein,San Marino,Civitatis Vaticanæ,België - Belgique - Belgien,"Хуссар Ирыстон - Южная Осетия","Хуссар Ирыстон","Аҧсны - Абхазия","Լեռնային Ղարաբաղի Հանրապետությու (Nagorno-Karabakh Republic)"]
+                        - population: { max: 5000000 }
+                    draw:
+                        text-blend-order:
+                            visible: false
+            country-z7:
+                # South Ossetia and Abkhazia aren't countries (they are disputed areas)
+                filter: { $zoom: { min: 7, max: 9 } }
+                draw:
+                    text-blend-order:
+                        font:
+                            size: [[7,18px],[9,24px]]
+                small-ones-z7:
+                    filter:
+                        $zoom: [7]
+                        # South Ossetia and Abkhazia aren't countries (they are disputed areas)
+                        name: [Liechtenstein,San Marino,Civitatis Vaticanæ,"Хуссар Ирыстон - Южная Осетия","Хуссар Ирыстон","Аҧсны - Абхазия","Լեռնային Ղարաբաղի Հանրապետությու (Nagorno-Karabakh Republic)"]
+                    draw:
+                        text-blend-order:
+                            visible: false
+                small-pop:
+                    filter:
+                        - population: { max: 5000000 }
+                    draw:
+                        text-blend-order:
+                            priority: 30
+                            font:
+                                size: 12px
+
+        region:
+            filter:
+                class: region
+                $zoom: { min: 4, max: 9 }
+            draw:
+                text-blend-order:
+                    priority: 14
+                    visible: false
+                    text_source: global.ux_language_text_source_short
+                    font:
+                        size: 11px
+                        weight: normal
+                        fill: [[4, global.light_color], [9, global.midlight_color]]
+                        stroke: { color: global.text_stroke, width: 4px }
+            region-z4:
+                filter:
+                    $zoom: [4]
+                    not: { name: [Western Cape,Eastern Cape,Northern Cape,North West,Limpopo,KwaZulu-Natal,Hamburg,Freie und Hansestadt Hamburg,Neuchâtel,Nordrhein-Westfalen,Haute-Normandie,Baden-Württemberg,Bayern,Sachsen-Anhalt,Berlin,Mecklenburg-Vorpommern,Schleswig-Holstein,Brandenburg,Niedersachsen,Saarland,Thüringen,Hessen,Sachsen] }
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_admin
+                        # font:
+                        #     fill: [0.70,0.70,0.70]
+            region-z5:
+                filter:
+                    $zoom: [5]
+                    not: { name: [Western Cape,Eastern Cape,Northern Cape,North West,Limpopo,KwaZulu-Natal,Hamburg,Freie und Hansestadt Hamburg,Neuchâtel,Nordrhein-Westfalen,Haute-Normandie,Baden-Württemberg,Bayern,Sachsen-Anhalt,Berlin,Mecklenburg-Vorpommern,Schleswig-Holstein,Brandenburg,Niedersachsen,Saarland,Thüringen,Hessen,Sachsen] }
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_admin
+                        font:
+                            size: 18px
+                            weight: 300
+            region-z6:
+                filter:
+                    $zoom: [6]
+                    not: { name: [Western Cape,Eastern Cape,Northern Cape,North West,Limpopo,KwaZulu-Natal,Hamburg,Freie und Hansestadt Hamburg,Neuchâtel,Nordrhein-Westfalen,Haute-Normandie,Baden-Württemberg,Bayern,Sachsen-Anhalt,Berlin,Mecklenburg-Vorpommern,Schleswig-Holstein,Brandenburg,Niedersachsen,Saarland,Thüringen,Hessen,Sachsen] }
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_admin
+                        font:
+                            size: 21px
+                            weight: 300
+                            transform: uppercase
+
+            region-z7-z8:
+                filter: { $zoom: [7,8] }
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_admin
+                        text_source: global.ux_language_text_source_short_proxy_name
+                        font:
+                            size: 30px
+                            weight: 300
+                            transform: uppercase
+                pesky:
+                    filter:
+                        $zoom: [7]
+                        name: [Western Cape,Eastern Cape,Northern Cape,North West,Limpopo,KwaZulu-Natal,Hamburg,Freie und Hansestadt Hamburg,Neuchâtel,Nordrhein-Westfalen,Haute-Normandie,Baden-Württemberg,Bayern,Sachsen-Anhalt,Berlin,Mecklenburg-Vorpommern,Schleswig-Holstein,Brandenburg,Niedersachsen,Saarland,Thüringen,Hessen,Sachsen]
+                    draw:
+                        text-blend-order:
+                            visible: false
+                abbrev-small-ones-z7:
+                    filter:
+                        $zoom: [7]
+                        name: [Delaware,New Jersey,Connecticut,Rhode Island,Massachusetts,New Hampshire,Vermont]
+                    draw:
+                        text-blend-order:
+                            text_source: global.ux_language_text_source_abbreviation
+                            font: { transform: uppercase }
+                region-z8:
+                    filter:
+                        $zoom: [8]
+                    draw:
+                        text-blend-order:
+                            text_source: global.ux_language_text_source
+                    no-pop:
+                        filter:
+                            any:
+                                - population: false
+                                - population: { max: 1000000 }
+                        draw:
+                            text-blend-order:
+                                font:
+                                    size: 16px
+
+        populated-places:
+            filter:
+                class: locality
+            draw:
+                mapzen_icon_library:
+                    visible: global.icon_visible_populated_places
+                    size: [[10,4px],[11,0px]]
+                    sprite: townspot-xs-rev
+                    buffer: 8px
+                    priority: 30
+                    text:
+                        visible: global.text_visible_populated_places
+                        buffer: 3px
+                        font:
+                            size: [[5,9px],[8,10px],[12,11px]]
+                            stroke: { color: global.text_stroke, width: 4px }
+                            # fill: global.text_fill
+                text-blend-order:
+                    visible: global.text_visible_populated_places
+                    buffer: 10px
+                    font:
+                        size: [[5,9px],[8,10px],[12,11px]]
+                        stroke: { color: global.text_stroke, width: 4px }
+                        # fill: global.text_fill
+
+            #
+            # NOTE: you'd think no-townspot would be the way to go, but icons with size 0px seems to have a bug to also hide the text :(
+            #
+            # no-townspot:
+            #     filter: { $zoom: { min: 11 } }
+            #     draw:
+            #         mapzen_icon_library:
+            #             size: 0px
+            #             text:
+            #                 anchor: center
+            #
+            # NOTE: So instead we play a shell game with symbolizers per zoom
+            #
+            _icons_later:
+                filter: { $zoom: { min: 11 } }
+                draw:
+                    mapzen_icon_library:
+                        visible: false
+                    text-blend-order:
+                        visible: global.text_visible_populated_places
+
+            _text_early:
+                filter: { $zoom: { max: 11 } }
+                draw:
+                    text-blend-order:
+                        visible: false
+            # END HACK
+
+            z8-50k-below:
+                filter: { $zoom: [8,9], population: { min: 10000, max: 50000 } }
+                draw:
+                    mapzen_icon_library:
+                        buffer: 25px
+                        #color: red
+                        #visible: false
+            z9-10k-below:
+                filter: { $zoom: [8,9], population: { max: 10000 } }
+                draw:
+                    mapzen_icon_library:
+                        buffer: 18px
+                        #color: blue
+                        #visible: false
+            z9-no-population:
+                filter: { $zoom: [8,9], population: false }
+                draw:
+                    mapzen_icon_library:
+                        buffer: 10px
+                        #color: yellow
+                        #visible: false
+
+            sorry-denver:
+                filter:
+                    $zoom: [3]
+                    name: [Denver]
+                draw:
+                    mapzen_icon_library:
+                        visible: false
+
+            # HACK
+            # NOTE: These should use icon: buffer instead of going visible: false, but there are problems using icon here :(
+            # This fixes Paris area, but causes problems for small places in the USA eg Table Bluff near Eureka, California.
+            funky-village:
+                filter: { $zoom: [11], population: { max: 1000 }, class_detail: [village] }
+                draw:
+                    text-blend-order:
+                        visible: false
+            funky-isolated_dwelling:
+                filter: { $zoom: [13], class_detail: [isolated_dwelling] }
+                draw:
+                    text-blend-order:
+                        visible: false
+            hamlet:
+                filter: { $zoom: [13], class_detail: hamlet }
+                draw:
+                    text-blend-order:
+                        visible: false
+            # END HACK
+
+            # someone in London and Salt Lake City thought neighbourhoods should be tagged place: locality
+            # They were wrong
+            funky-fake-neighbourhoods:
+                filter: { $zoom: { min: 13 }, class_detail: [locality] }
+                draw:
+                    text-blend-order:
+                        visible: false
+
+
+            population-10m-up:
+                filter:
+                    population: { min: 10000000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[4,5px],[8,6px],[9,0px]]
+                        sprite: townspot-m-rev
+                        priority: 6
+                        text:
+                            font:
+                                size: [[2,11px],[6,15px],[8,18px],[10,20px],[12,20px],[13,0px]]
+                    text-blend-order:
+                        priority: 6
+                        font:
+                            size: [[2,11px],[6,15px],[8,18px],[10,20px],[12,20px],[13,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,8px],[11,0px]]
+                            sprite: capital-l
+                            priority: 5
+                        text-blend-order:
+                            priority: 5
+            population-5m-10m:
+                filter:
+                    population: { min: 5000000, max: 10000000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[4,5px],[8,6px],[9,0px]]
+                        sprite: townspot-m-rev
+                        priority: 7
+                        text:
+                            font:
+                                size: [[4,10px],[6,14px],[8,18px],[10,20px],[12,20px],[13,0px]]
+                    text-blend-order:
+                        priority: 7
+                        font:
+                            size: [[4,10px],[6,14px],[8,18px],[10,20px],[12,20px],[13,0px]]
+                capital:
+                    # we only want townspots to show as capital dots starting at zoom 5
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,8px],[11,0px]]
+                            sprite: capital-l
+                            priority: 6
+                        text-blend-order:
+                            priority: 6
+            population-1m-5m:
+                filter:
+                    population: { min: 1000000, max: 5000000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[4,5px],[8,6px],[9,0px]]
+                        sprite: townspot-m-rev
+                        priority: 9
+                        text:
+                            font:
+                                size: [[4,10px],[6,14px],[8,15px],[12,18px],[13,0px]]
+                    text-blend-order:
+                        priority: 9
+                        font:
+                            size: [[4,10px],[6,14px],[8,15px],[12,18px],[13,0px]]
+                capital:
+                    # we only want townspots to show as capital dots starting at zoom 5
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,8px],[11,0px]]
+                            sprite: capital-l
+                            priority: 8
+                        text-blend-order:
+                            priority: 8
+            population-500k-1m:
+                filter:
+                    population: { min: 500000, max: 1000000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,6px],[9,0px]]
+                        sprite: townspot-m-rev
+                        priority: 11
+                        text:
+                            font:
+                                size: [[5,10px],[8,12px],[10,14px],[12,16px],[13,0px]]
+                    text-blend-order:
+                        priority: 11
+                        font:
+                            size: [[5,10px],[8,12px],[10,14px],[12,16px],[13,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,6px],[11,0px]]
+                            sprite: capital-m
+                            priority: 10
+                        text-blend-order:
+                            priority: 10
+            population-200k-500k:
+                filter:
+                    population: { min: 200000, max: 500000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,6px],[9,6px],[10,6px],[11,0px]]
+                        sprite: townspot-m-rev
+                        priority: 13
+                        text:
+                            font:
+                                size: [[6,10px],[8,14px],[10,15px],[12,16px],[13,0px]]
+                    text-blend-order:
+                        priority: 13
+                        font:
+                            size: [[6,10px],[8,14px],[10,15px],[12,16px],[13,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,6px],[11,0px]]
+                            sprite: capital-m
+                            priority: 12
+                        text-blend-order:
+                            priority: 12
+            population-100k-200k:
+                filter:
+                    population: { min: 100000, max: 200000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,6px],[9,6px],[10,6px],[11,0px]]
+                        sprite: townspot-m-rev
+                        priority: 15
+                        text:
+                            font:
+                                size: [[6,10px],[8,12px],[14,14px],[15,0px]]
+                    text-blend-order:
+                        priority: 15
+                        font:
+                            size: [[6,10px],[8,12px],[14,14px],[15,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,6px],[11,0px]]
+                            sprite: capital-m
+                            priority: 14
+                        text-blend-order:
+                            priority: 14
+            population-50k-100k:
+                filter:
+                    population: { min: 50000, max: 100000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,5px],[9,5px],[10,6px],[11,0px]]
+                        sprite: townspot-s-rev
+                        priority: 17
+                        text:
+                            font:
+                                size: [[6,10px],[8,12px],[14,14px],[15,0px]]
+                    text-blend-order:
+                        priority: 17
+                        font:
+                            size: [[6,10px],[8,12px],[14,14px],[15,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-m
+                            priority: 16
+                        text-blend-order:
+                            priority: 16
+            population-20k-50k:
+                filter:
+                    population: { min: 20000, max: 50000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,5px],[9,5px],[10,5px],[11,0px]]
+                        sprite: townspot-s-rev
+                        priority: 19
+                        text:
+                            font:
+                                size: [[9,10px],[14,12px],[15,0px]]
+                    text-blend-order:
+                        priority: 19
+                        font:
+                            size: [[9,10px],[14,12px],[15,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 18
+                        text-blend-order:
+                            priority: 18
+            population-10k-20k:
+                filter:
+                    population: { min: 10000, max: 20000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,4px],[9,4px],[10,4px],[11,0px]]
+                        sprite: townspot-xs-rev
+                        priority: 21
+                        text:
+                            font:
+                                fill: [[9, global.dark_color], [11, global.black_color]]
+                                size: [[9, 10px], [14, 12px], [15, 0px]]
+                    text-blend-order:
+                        priority: 21
+                        font:
+                            fill: [[9, global.dark_color], [11, global.black_color]]
+                            size: [[9, 10px],[14, 12px],[15, 0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 20
+                        text-blend-order:
+                            priority: 20
+            population-5k-10k:
+                filter:
+                    population: { min: 5000, max: 10000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,4px],[9,4px],[10,4px],[11,0px]]
+                        sprite: townspot-xs-rev
+                        priority: 23
+                        text:
+                            font:
+                                fill: [[9, global.dark_color], [11, global.black_color]]
+                                size: [[9,10px], [14,12px], [15,0px]]
+                    text-blend-order:
+                        priority: 23
+                        font:
+                            fill: [[9, global.dark_color], [11, global.black_color]]
+                            size: [[9,10px], [14,12px], [15,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 22
+                        text-blend-order:
+                            priority: 22
+            population-2k-5k:
+                filter:
+                    population: { min: 2000, max: 5000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,4px],[9,4px],[10,4px],[11,0px]]
+                        sprite: townspot-xs-rev
+                        priority: 25
+                        text:
+                            font:
+                                fill: [[9, global.dark_color],[11, global.black_color]]
+                                size: [[9,10px], [14,12px], [15,0px]]
+                    text-blend-order:
+                        priority: 25
+                        font:
+                            fill: [[9, global.dark_color],[11, global.black_color]]
+                            size: [[9,10px], [14,12px], [15,0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 24
+                        text-blend-order:
+                            priority: 24
+            population-1k-2k:
+                filter:
+                    population: { min: 1000, max: 2000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,4px],[9,4px],[10,4px],[11,0px]]
+                        sprite: townspot-xs-rev
+                        priority: 27
+                        text:
+                            font:
+                                fill: [[9, global.dark_color], [11, global.black_color]]
+                                size: [[9,10px], [14,12px], [15,0px]]
+                    text-blend-order:
+                        priority: 27
+                        font:
+                            fill: [[9, global.dark_color], [11, global.black_color]]
+                            size: [[9, 10px], [14, 12px], [15, 0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 26
+                        text-blend-order:
+                            priority: 26
+            population-200-1k:
+                filter:
+                    population: { min: 200, max: 1000 }
+                draw:
+                    mapzen_icon_library:
+                        size: [[8,4px],[9,4px],[10,4px],[11,0px]]
+                        sprite: townspot-xs-rev
+                        priority: 28
+                        text:
+                            font:
+                                fill: [[9, global.dark_color],[11, global.black_color]]
+                                size: [[9, 10px], [14, 11px], [15, 0px]]
+                    text-blend-order:
+                        priority: 28
+                        font:
+                            fill: [[9, global.dark_color],[11, global.black_color]]
+                            size: [[9, 10px], [14, 11px], [15, 0px]]
+                capital:
+                    filter: { country_capital: true, $zoom: { min: 5 } }
+                    draw:
+                        mapzen_icon_library:
+                            size: [[10,5px],[11,0px]]
+                            sprite: capital-s
+                            priority: 27
+                        text-blend-order:
+                            priority: 27
+
+
+        neighbourhoods:
+            filter:
+                all:
+                    - class:
+                        - borough
+                        - macrohood
+                        - neighbourhood
+                        #- microhood       # until Tenderloin microhoods are cleaned up, ban this placetype
+                    - $zoom: { min: 10, max: 17 }
+                    - is_landuse_aoi: false
+                    - function() { return (feature.min_zoom <= ($zoom+0.5) && feature.max_zoom >= ($zoom+1)) }
+            draw:
+                text-blend-order:
+                    visible: global.text_visible_neighbourhoods_e
+                    priority: 29
+                    buffer: 8px
+                    text_wrap: 10
+                    max_lines: 2
+                    font:
+                        fill: global.mid_color
+                        size: [[11, 9px], [12, 10px], [13, 12px], [14, 16px], [16, 24px]]
+                        weight: normal
+                        transform: uppercase
+                        stroke: { color: global.text_stroke, width: [[12, 4px], [13, 6px], [15, 8px]] }
+
+            z13-up:
+                filter:
+                    $zoom: { min: 13 }
+                draw:
+                    text-blend-order:
+                        font:
+                            weight: 300
+
+                low_quality_class_tile_rank:
+                    filter:
+                        class_tile_rank: { min: 8 }
+                    draw:
+                        text-blend-order:
+                            visible: false
+
+                z14-up:
+                    filter:
+                        $zoom: { min: 14 }
+                    draw:
+                        text-blend-order:
+                            text_wrap: 9
+                            visible: global.text_visible_neighbourhoods
+
+                    z15-up:
+                        filter:
+                            $zoom: { min: 15 }
+                            min_zoom: { min: 15 }
+                        draw:
+                            text-blend-order:
+                                priority: 19
+                                font:
+                                    size: 13px
+
+styles:
+    space-constant:
+        shaders:
+            blocks:
+                global: |
+                    // Get the constant coordinates (glitches on zooms)
+                    // ================================
+                    vec2 getConstantCoords () {
+                        #ifdef TANGRAM_FRAGMENT_SHADER
+                        const float pixel_scale = 695.;
+                        float meter_pixels = u_meters_per_pixel / u_device_pixel_ratio;
+                        vec2 st = gl_FragCoord.xy/pixel_scale;
+                        const float dot_wrap = 1000.;
+                        st += mod(u_map_position.xy / meter_pixels, dot_wrap)/pixel_scale;
+                        return st;
+                        #else
+                        return vec2(0.0,0.0);
+                        #endif
+                    }
+    functions-aastep:
+        shaders:
+            extensions: OES_standard_derivatives
+            blocks:
+                global: |
+                    // AntiAliased Step function
+                    //=============================
+                    float aastep(float threshold, float value) {
+                        #ifdef TANGRAM_FRAGMENT_SHADER
+                            #ifdef TANGRAM_EXTENSION_OES_standard_derivatives
+                                float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+                                return smoothstep(threshold-afwidth, threshold+afwidth, value);
+                            #else
+                                return step(threshold, value);
+                            #endif
+                        #else
+                            return step(threshold, value);
+                        #endif
+                    }
+    patterns-stripes:
+        mix: functions-aastep
+        shaders:
+            defines:
+                PI: 3.14159265358979323846
+            blocks:
+                global: |
+                    // Return a distance function of stripes
+                    float stripesDF (vec2 st) {
+                        return abs(sin(st.y*PI));
+                    }
+
+                    // Adjustable width stripes
+                    float stripes (vec2 st, float width) {
+                        return aastep(width,stripesDF(st));
+                    }
+
+                    // Faster optimisation of diagonal stripes
+                    float diagonalStripes (vec2 st) {
+                        vec2 i_st = floor(st);
+                        vec2 f_st = fract(st);
+                        if (mod(i_st.y,2.) - mod(i_st.x,2.) == 0.) {
+                            return 1.0 - aastep(f_st.x,f_st.y);
+                        } else {
+                            return aastep(f_st.x,f_st.y);
+                        }
+                    }
+    waves:
+        base: polygons
+        mix: [space-constant, patterns-stripes]
+        shaders:
+            uniforms:
+                u_lighter: global.lighter_color
+                u_lightest: global.lightest_color
+            blocks:
+                global: |
+                    float stripes2(vec2 st){
+                        return step(.3,1.0-smoothstep(.5,1.,abs(sin(st.y*3.14159265358))));
+                    }
+                filter: |
+                    vec2 st = getConstantCoords();
+
+                    const float wave_width = 30.0;
+                    const float wave_height = .01;
+                    st.y += sin(st.x*wave_width)*wave_height;
+
+                    // gradient
+                    color.rgb = mix(u_lighter, color.rgb, gl_FragCoord.x / u_resolution.x);
+                    color = mix(color,vec4(u_lightest,1.0),stripes(st*92.,.5))*1.0;
+

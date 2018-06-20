@@ -1,0 +1,1340 @@
+import:
+    - refill-icons.yaml
+    - color-black.yaml
+    - label-5.yaml
+
+global:
+    feature_order: function () { return feature.sort_rank; }
+    sdk_mapzen_api_key: ''
+
+    # labels:
+    text_font_family:      'Open Sans'            # branding in asperational Unicode, yo (or Helvetica)
+
+fonts:
+    Montserrat:
+        url: https://fonts.gstatic.com/s/montserrat/v7/zhcz-_WihjSQC0oHJ9TCYL3hpw3pgy2gAi-Ip7WPMi0.woff
+    Open Sans:
+        - weight: 400
+          url: https://fonts.gstatic.com/s/opensans/v13/wMws1cEtxWZc6AZZIpiqWALUuEpTyoUstqEm5AMlJo4.woff
+        - weight: 400
+          style: italic
+          url: https://fonts.gstatic.com/s/opensans/v13/O4NhV7_qs9r9seTo7fnsVLO3LdcAZYWl9Si6vvxL-qU.woff
+
+scene:
+    background:
+        color: '#f0ebeb'
+cameras:
+    iso-camera:
+        # Manhattan
+        position: [-74.00976419448854, 40.70532700869127, 16]
+        type: isometric
+        axis: [0, 1]
+        active: false
+    perspective-camera:
+        # Manhattan
+        position: [-74.00976419448854, 40.70532700869127, 16]
+        type: perspective
+        fov: 45
+        max_tilt: [[2, 0], [16, 90]]
+        active: true
+
+lights:
+    light1:
+        type: directional
+        origin: world
+        direction: [1, 1, -1]
+        diffuse: [.3, .3, .3, 1.]
+        ambient: [0.7, 0.7, 0.7, 1.]
+
+#textures:
+#    pois:
+#        url: img/poi_icons_32.png
+#        sprites:
+#            plane: [0, 0, 32, 32]
+#            tree: [0, 185, 32, 32]
+#            sunburst: [0, 629, 32, 32]
+#            restaurant: [0, 777, 32, 32]
+#            cafe: [0, 814, 32, 32]
+#            museum: [0, 518, 32, 32]
+#            bar: [0, 887, 32, 32]
+#            train: [0, 74, 32, 32]
+#            bus: [0, 148, 32, 32]
+#            hospital: [0, 444, 32, 32]
+#            parking: [0, 1073, 32, 32]
+#            info: [0, 1110, 32, 32]
+#            hotel: [0, 259, 32, 32]
+#            bookstore: [0, 333, 32, 32]
+#            shield: [0, 1142, 32, 32]
+#            arrow: [1, 1175, 22, 22]
+
+styles:
+#    icons:
+#        base: points
+#        texture: pois
+    heightglow:
+        base: polygons
+        blend: translucent
+        blend_order: -2
+        lighting: vertex
+        shaders:
+            blocks:
+                color: "color.rgb += vec3(worldPosition().z / 800.);"
+    heightglowline:
+        base: lines
+        blend_order: -1
+        mix: heightglow
+    dashed:
+        base: lines
+        dash: [3.0, 0.3]
+    transit-lines:
+        base: lines
+        blend: overlay
+        blend_order: -2
+        shaders:
+            blocks:
+                filter: |
+                    color.rgb *= 1.25; // pump up the colors
+                    color.a = 0.5;     // translucent
+        draw: # default draw parameters
+            color: function() { return feature.colour || 'gray'; }
+            width: 6px
+            outline:
+                color: [.8, .8, .8]
+                width: 1px
+            interactive: true
+    text-blend-order:
+        base: text
+        blend_order: 1
+
+    ux-lines-overlay:
+        base: lines
+#        blend: overlay
+#        blend_order: 0
+sources:
+    osm:
+        type: MVT
+        url: https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf
+        # url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt
+        max_zoom: 14
+        url_params:
+            key: "NquccGVsw2OiFdrhUgsB"
+            # api_key: "A8Qbu-9tSDezIwU2pH2tQw"
+
+layers:
+    ratio_route_line:
+        data: { source: ratio_route_line }
+        draw:
+            ux-lines-overlay:
+                interactive: true
+                color: blue
+                order: 500
+                width: [[0,3.5px],[5,5px],[9,7px],[10,6px],[11,6px],[13,8px],[14,9px],[15,10px],[16,11px],[17,12px],[18,10px]]
+
+    ratio_route_line_passed:
+        data: { source: ratio_route_line_passed }
+        draw:
+            ux-lines-overlay:
+                interactive: true
+                color: lightgray
+                order: 501
+                width: [[0,3.5px],[5,5px],[9,7px],[10,6px],[11,6px],[13,8px],[14,9px],[15,10px],[16,11px],[17,12px],[18,10px]]
+# # landcover layer start
+    landcover:
+    #farmland,ice,wood,grass,wetland
+        data: { source: osm, layer: landcover }
+        draw:
+            polygons:
+                visible: false
+                order: 0
+                color: black
+        lightgreen-area:
+            filter:
+                any:
+                    - class: [farmland, wood, grass]
+                    - $zoom: { min : 10 }
+            draw:
+                polygons:
+                    visible: true
+                    order: 0
+                    color: lightgreen
+        ice:
+            filter: { class: ice }
+            draw:
+                polygons:
+                    visible: true
+                    order: 0
+                    color: white
+# # landcover layer end
+
+# # water layer start
+    water:
+        data: { source: osm, layer: water }
+        draw:
+            polygons:
+                #style: waves
+                visible: false
+                order: 1 #global.feature_order
+                color: [[0, global.lightest_color], [12, global.lighter_color]]
+        lake:
+            filter:
+                - class: [ocean, lake, reservoir, ponds]
+            draw:
+                polygons:
+                    visible: true
+                    order: 1
+                    color: lightblue #global.lighter_color
+
+        other-water-areas:
+            filter: { not: { class: [ ocean, lake, water, reservoir, ponds ] }, $zoom: { min: 11 } }
+            draw:
+                polygons:
+                    visible: true
+                    color: lightblue #global.lighter_color
+# # water layer end
+
+# # water_name layer start
+    water_name:
+        data: { source: osm, layer: water_name }
+
+        water-area-labels:
+            filter:
+                all:
+                    - function() { return global.text_visible_water_labels; }
+            draw:
+                text-blend-order:
+                    text_source: name
+                    visible: false
+                    font:
+                        fill: global.black_color
+                        family: global.text_font_family
+                        weight: normal
+            ocean-labels:
+                filter:
+                    all:
+                        - $zoom: { min: 1 }
+                        - class: [ocean]
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_water_labels
+                        text_source: name
+                        text_wrap: false
+                        priority: 1
+                        font:
+                            size: [[1, 7px], [2, 9px], [4, 11px]]
+                            transform: uppercase
+
+            mostly-lakes:
+                filter:
+                    all:
+                        - $zoom: { min: 3 }
+                        - $geometry: point
+                        - not: { class: [riverbank, dock, playa] }
+                draw:
+                    text-blend-order:
+                        visible: global.text_visible_water_labels
+                        text_wrap: 8
+                        font:
+                            style: italic
+                            size: [[5, 9px], [14, 12px]]
+# # water_name layer end
+
+# # boundary layer start
+    boundary:
+        data: { source: osm, layer: boundary }
+        # country subdivisions (states, provinces)
+        draw:
+            lines:
+                order: 1
+        country:
+            filter:
+                any:
+                    - class: country
+                    - admin_level: 2
+            draw:
+                country-outerline:
+                    style: lines
+                    order: 0
+                    color: global.light_color
+                    width: [[0, 0px], [4, 2px], [8, 5px], [14, 7px], [17, 14m]]
+                lines:
+                    color: global.white_color
+                    width: [[0, 0px], [5, 0px], [6, 1px], [14, 2px]]
+            water:
+                filter: { maritime: 1 }
+                draw:
+                    country-outerline:
+                        visible: false
+                    lines:
+                        visible: false
+        other_country_boundary_disputed_etc:
+            filter: { class: [disputed, indefinite, indeterminate, lease_limit, line_of_control, overlay_limit] }
+            draw:
+                lines:
+                    dash: [1.25, 1.25]
+                    order: 1
+                    color: global.light_color
+                    width: [[1,0.2px],[9,1.5px],[17,10m]]
+            disputed:
+                filter: { class: [disputed, line_of_control] }
+                draw:
+                    lines:
+                        dash: [2.0, 1.0]
+                        order: 1
+                        color: global.light_color
+                        width: [[1, 0.5px], [9, 2.5px], [17,14m]]
+
+        region:
+            filter:
+                any:
+                    - class: country
+                    - admin_level: 4
+            draw:
+                lines:
+                    color: black
+                    width: [[0, 0.5px], [9, 2px], [14, 4px], [16, 6.5px], [17, 16m]]
+#width: [[0, 0.5px], [14, 3px], [16, 5px], [17, 16m]]
+
+            water:
+                filter: { maritime: 1 }
+                draw:
+                    lines:
+                        visible: false
+
+            dash-borders:
+                filter:
+                    $zoom: { min: 7 }
+                draw:
+                    lines:
+                        dash: [7.0, 2.0]
+
+            early:
+                filter: { not: { $zoom: [1,2] }, $zoom: { max: 8} }
+                draw:
+                    lines:
+                        visible: false
+# # boundary layer end
+
+# # building layer start
+    building:
+        data: { source: osm }
+        filter: { $zoom: { min: 16 } }
+        # set default footprint and extrusion draw properties, but don't draw by default (rules below will turn visibility on)
+        draw:
+            polygons:
+                visible: true
+                order: 329
+                color: global.white_color
+            lines:
+                visible: true
+                style: lines
+                order: 330
+                color: [[14, global.light_color], [16, global.midlight_color], [19, global.dark_color]]
+                width: [[14, 0.3px], [15, 0.5px], [16, 0.75px],[18, 0.75px], [19, 1px]]
+# # building layer end
+
+# # place layer start
+    place:
+        data: { source: osm, layer: place }
+        filter:
+            name: true
+        draw:
+            mapzen_icon_library:
+                visible: false
+                text:
+                    text_source: name
+                    visible: false
+                    buffer: 3px
+                    font:
+                        family: global.text_font_family
+                        fill: global.black_color
+            # NOTE: This is a hack for localities because of an icon & text bug, see note below
+            text-blend-order:
+                text_source: name
+                visible: false    # labels are enabled by each layer below
+                buffer: 3px
+                font:
+                    family: global.text_font_family
+                    fill: global.black_color
+            # END NOTE
+        contient:
+            filter: { class: [continent], $zoom: { max: 2 } }
+            draw:
+                text-blend-order:
+                    visible: global.text_visible_continent
+                    text_source: name
+                    text_wrap: false
+                    font:
+                        family: global.text_font_family
+                        size: [[1, 15px]] #, [3, 14px]]
+                        style: italic
+                        fill: global.black_color
+                        weight: normal
+                        transform: uppercase
+        country:
+            filter:
+                class: country
+                $zoom: { min: 1, max: 9 }
+            draw:
+                text-blend-order:
+                    priority: 3
+                    visible: false
+                    text_source: name
+                    font:
+                        fill: global.black_color
+                        weight: 600
+                        stroke: { color: global.text_stroke, width: 4px }
+            country-rank1:
+                filter:
+                    rank: 1
+                    $zoom: { min: 2, max: 9 }
+                draw:
+                    text-blend-order:
+                        priority: 3
+                        visible: true
+                        text_source: name
+                        font:
+                            fill: global.black_color
+                            weight: 600
+                            stroke: { color: global.text_stroke, width: 4px }
+            country-rank2:
+                filter:
+                    rank: 2
+                    $zoom: { min: 3, max: 9 }
+                draw:
+                    text-blend-order:
+                        priority: 3
+                        visible: true
+                        text_source: name
+                        font:
+                            fill: global.black_color
+                            weight: 600
+                            stroke: { color: global.text_stroke, width: 5px }
+            country-rank-more:
+                filter:
+                    rank: { min: 3 }
+                    $zoom: { min: 4, max: 9 }
+                draw:
+                    text-blend-order:
+                        priority: 3
+                        visible: true
+                        text_source: name
+                        font:
+                            fill: global.black_color
+                            weight: 600
+                            stroke: { color: global.text_stroke, width: 4px }
+        city:
+            filter:
+                class: city
+                $zoom: { min: 4}
+            draw:
+                text-blend-order:
+                    visible: false
+                    text_source: name
+                    text_wrap: false
+                    font:
+                        family: global.text_font_family
+                        size: 11px
+                        fill: global.black_color
+                        weight: normal
+            city-rank1:
+                filter:
+                    rank: 1
+                    $zoom: { min: 3 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank2:
+                filter:
+                    rank: 2
+                    $zoom: { min: 4 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank3-4:
+                filter:
+                    rank: [3,4]
+                    $zoom: { min: 5 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank5:
+                filter:
+                    rank: 5
+                    $zoom: { min: 6 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank6:
+                filter:
+                    rank: 6
+                    $zoom: { min: 7 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank7:
+                filter:
+                    rank: 7
+                    $zoom: { min: 8 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank8-9:
+                filter:
+                    rank: [8,9]
+                    $zoom: { min: 9 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            city-rank-more:  # rank 10~
+                filter:
+                    rank: { min: 10 }
+                    $zoom: { min: 11 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+        state:
+            filter:
+                class: state
+                $zoom: { min: 4 }
+            draw:
+                text-blend-order:
+                    visible: false
+                    text_source: name
+                    text_wrap: false
+                    font:
+                        family: global.text_font_family
+                        size: 11px
+                        fill: global.black_color
+                        weight: normal
+            state-rank1:
+                filter:
+                    rank: 1
+                    $zoom: { min: 4 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            state-rank-more:  # rank 2~
+                filter:
+                    rank: { min: 2 }
+                    $zoom: { min: 5 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+        town:
+            filter:
+                class: town
+                $zoom: { min: 8 }
+            draw:
+                text-blend-order:
+                    visible: false
+                    text_source: name
+                    text_wrap: false
+                    font:
+                        family: global.text_font_family
+                        size: 11px
+                        fill: global.black_color
+                        weight: normal
+            town-rank-less10:
+                filter:
+                    rank: { max: 10 }
+                    $zoom: { min: 8 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            town-rank-11:
+                filter:
+                    rank: 11
+                    $zoom: { min: 9 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+            town-rank-more:
+                filter:
+                    rank: { min: 12, max: 14 }
+                    $zoom: { min: 10 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+        villiage:
+                filter:
+                    class: village
+                    $zoom: { min: 11 }
+                draw:
+                    text-blend-order:
+                        visible: true
+                        text_source: name
+                        text_wrap: false
+                        font:
+                            family: global.text_font_family
+                            size: 11px
+                            fill: global.black_color
+                            weight: normal
+# # place layer end
+
+# # poi layer start
+    pois:
+        data: { source: osm, layer: poi }
+        filter: { $zoom: { min: 16 }, name: true }
+        draw:
+            text-blend-order:
+                visible: true
+                text_source: name
+                text_wrap: false
+                font:
+                    family: global.text_font_family
+                    size: 11px
+                    fill: black
+                    weight: normal
+                    stroke: { color: global.text_stroke, width: 4px }
+# # poi layer end
+
+# # transportation layer start
+    transportation:
+        data: { source: osm }
+        filter: { not: { class: rail } }
+        draw:
+            lines:
+                visible: true
+                color: black
+                # color: function() { return [Math.random(), Math.random(), Math.random()] }
+                width: 12
+                order: 2 #global.feature_order
+                outline:
+                    color: [[16, '#999'], [18, '#aaa']]
+                    width: [[15, 0], [16, 2]]
+                    order: 352 # put all outlines below all roads
+
+        arrows:
+            # oneway arrows and shields are distinct groups!
+            filter: { oneway: 1, shield_text: false, not: { class: rail }, $zoom: { min: 17 } }
+            draw:
+                arrows:
+                    style: mapzen_icon_library
+                    flat: true
+                    visible: true
+                    sprite: arrow
+                    color: global.midlight_color
+                    size: [[17, 6px], [20, 14px]]
+                    placement: spaced
+                    placement_spacing: [[17, 70px], [20, 175px]]
+                    angle: auto
+                    text:
+                        visible: false
+
+        early:
+            filter: { $zoom: { max: 15 } }
+            draw:
+                lines:
+                    outline:
+                        order: global.feature_order
+
+        bridges-tunnels:
+            filter: { any: [brunnel: tunnel, brunnel: bridge] }
+            draw:
+                lines:
+                    #cap: butt
+                    outline:
+                        # except bridges and tunnels, their outlines should also self-sort
+                        order: global.feature_order
+
+        # default outlines starting at zoom 16
+        default-outline-width:
+            filter: { $zoom: { min: 16 } }
+            draw:
+                lines:
+                    outline:
+                        width: function () { return 3/16 * Math.log($zoom); }
+
+        natural_earth_highways:
+            filter: { $zoom: { min: 5, max: 8 } }
+            draw:
+                lines:
+                    visible: true
+                    color: [[5, global.mid_color], [6, global.black_color]]
+                    width: [[5, 0.5px], [6, 0.5px], [7, 0.75px]]
+                    outline:
+                        color: global.mid_color
+                        width: [[9, 0px], [10, 0px], [12, 1px], [16, 2px]]
+            major_road:
+                filter: { class: [motorway, primary, secondary, tertiary] }
+                draw:
+                    lines:
+                        color: [[5, global.light_color], [7, global.mid_color]]
+                        width: [[5, 0.25px], [7, 0.5px]]
+                        # outline:
+                        #     width: [[8, 0.0px], [9, 0.0px], [11, .5px], [16, .75px]]
+            minor_road:
+                filter: { class: minor }
+                draw:
+                    lines:
+                        color: global.offwhite_color
+                        width: 0.5px
+                        # outline:
+                        #     width: [[12, 0px], [14, .5px], [17, 1px]]
+        ferry:
+            filter: { class: ferry }
+            draw:
+                lines:
+                    visible: false
+                    color: green
+                    width: 0.5px
+                    outline:
+                        width: 0px
+        highway:
+            filter: { class: motorway, $zoom: { min: 8 } }
+            draw:
+                lines:
+                    color: [[8, global.black_color], [13, global.black_color], [14, global.white_color]]
+                    width: [[8, 1px], [13, 1.25px], [14, 0.1px], [15, 1.5px], [17, 8px], [18, 10m]]
+                    outline:
+                        color: [[8, global.white_color], [12, global.white_color], [13, global.black_color]]
+                        width: [[8, 0px], [13, 0px], [14, 1px], [15, 2px], [19, 6px]]
+            link:
+                filter: { is_link: true } # on- and off-is_links, etc
+                draw:
+                    lines:
+                        color: [[9, global.mid_color], [13, global.mid_color], [14, global.white_color]]
+                        width: [[9, 0px], [13, 0.75px], [14, 0.1px], [17, 4px], [18, 5m]]
+                        outline:
+                            color: [[9, global.white_color], [12, global.white_color], [13, global.mid_color], [15, global.black_color]]
+                            width: [[9, 0px], [13, 0px], [14, 0.4px], [17, 1.5px], [18, 2px]]
+                early_link:
+                    filter: { $zoom: {min: 13, max: 15} }
+                    draw:
+                        lines:
+                            order: 352
+                tunnel-link:
+                    filter: {brunnel: tunnel, $zoom: { min: 13 } }
+                    draw:
+                        lines:
+                            color: [[13, global.light_color], [14, global.ultralight_color]]
+                            outline:
+                                color: [[12, global.white_color], [13, global.light_color]]
+            tunnel:
+                filter: { brunnel: tunnel, $zoom: { min: 13 } }
+                draw:
+                    lines:
+                        color: [[13, global.light_color], [14, global.ultralight_color]]
+                        outline:
+                            color: [[12, global.white_color], [13, global.light_color]]
+            highway_bridge:
+                filter: { brunnel: bridge }
+                draw:
+                    lines:
+                        cap: round
+                        outline:
+                            cap: butt
+
+        major_road:
+            filter: { $zoom: { min: 8 } }
+            # default style
+            draw:
+                lines:
+                    color: [[8, global.black_color], [13, global.black_color], [17, global.white_color]]
+                    width: [[13, 1px], [14, 1px], [16, 2.5px], [17, 3px]]
+                    outline:
+                        width: [[12, 0px], [13, 0.5px], [15, 1px], [17, 2px]]
+            trunk_primary:
+                filter: { class: [trunk, primary] }
+                draw:
+                    lines:
+                        color: [[8, global.midlight_color], [12, global.mid_color], [13, global.black_color], [14, global.white_color]]
+                        width: [[8, 0.5px], [11, 0.5px], [13, 1px], [14, 0.1px], [16, 2px], [17, 8px], [18, 10m]]
+                        outline:
+                            color: [[8, global.white_color], [12, global.white_color], [13, global.black_color]]
+                            width: [[8, 0px], [13, 0px], [14, 0.75px], [16, 1.5px], [18, 4px]]
+                early:
+                    filter: { $zoom: { max: 16 } }
+                    draw:
+                        lines:
+                            order: 352
+                            outline:
+                                order: function() { return feature.sort_rank + 2; }
+                    primary:
+                        filter: { class: [primary] }
+                        draw:
+                            lines:
+                                outline:
+                                    order: function() { return feature.sort_rank + 1; }
+                routes:
+                    filter: { ref: true }
+                    draw:
+                        lines:
+                            color: [[8, global.midlight_color], [12, global.mid_color], [13, global.black_color], [14, global.white_color]]
+                            width: [[9, 0.5px], [13, 1px], [14, 0.1px], [15, 1.25px], [16, 2px], [17, 8px], [18, 10m]]
+                            outline:
+                                color: [[8, global.white_color], [12, global.white_color], [13, global.black_color]]
+                                width: [[8, 0px], [13, 0px], [14, 0.75px], [15, 1.5px], [17, 3px], [18, 4px]]
+                    early:
+                        filter: { $zoom: { max: 16 } }
+                        draw:
+                            lines:
+                                order: function() { return feature.sort_rank + 2; }
+                                outline:
+                                    order: 353
+                    tunnel:
+                        filter: { brunnel: tunnel, $zoom: { min: 13 } }
+                        draw:
+                            lines:
+                                color: [[13, global.light_color], [14, global.ultralight_color]]
+                                outline:
+                                    color: [[12, global.white_color], [13, global.light_color]]
+            link:
+                filter: { is_link: true } # on- and off-is_links, etc
+                draw:
+                    lines:
+                        color: [[10, global.mid_color], [15, global.light_color], [16, global.white_color]]
+                        width: [[10, 0.5px], [12, 0.5px], [15, 1px], [16, 1.75px], [17, 3px], [18, 5m]]
+                        outline:
+                            color: [[10, global.white_color], [15, global.mid_color], [16, global.black_color]]
+                            width: [[10, 0px], [15, 0px], [16, 1px], [18, 2px]]
+            tunnel:
+                filter: { brunnel: tunnel, $zoom: { min: 13 } }
+                draw:
+                    lines:
+                        color: [[13, global.light_color], [14, global.ultralight_color]]
+                        outline:
+                            color: [[12, global.white_color], [13, global.light_color]]
+            secondary:
+                filter: { class: secondary }
+                draw:
+                    lines:
+                        color: [[10, global.lighter_color], [13, global.midlight_color], [15, global.dark_color], [16, global.white_color]]
+                        width: [[10, 0.5px], [12, 0.5px], [14, 1px], [15, 1.5px], [16, 0.1px], [17, 7.5px], [18, 9m]]
+                        outline:
+                            color: [[10, global.white_color], [14, global.white_color], [15, global.black_color]]
+                            width: [[10, 0px], [15, 0px], [16, 1.1px], [17, 2px]]
+                early:
+                    filter: { $zoom: { max: 16 } }
+                    draw:
+                        lines:
+                            order: 352
+                            outline:
+                                order: 353 #function() { return feature.sort_rank + 2; }
+                routes:
+                    filter: { $zoom: { min: 12 } } # ref: true
+                    draw:
+                        lines:
+                            color: [[10, global.lighter_color], [13, global.mid_color], [15, global.black_color], [16, global.white_color]]
+                            width: [[10, 0.5px], [13, 1px], [15, 1.5px], [16, 0.1px], [17, 7.5px], [18, 9m]]
+                            outline:
+                                color: [[10, global.white_color], [14, global.white_color], [15, global.black_color]]
+                                width: [[10, 0px], [15, 0px], [16, 1.5px], [17, 2px]]
+                    early:
+                        filter: { $zoom: { max: 15 } }
+                        draw:
+                            lines:
+                                order: function() { return feature.sort_rank + 2; }
+                                outline:
+                                    order: 353
+                    tunnel:
+                        filter: {brunnel: tunnel, $zoom: { min: 13 } }
+                        draw:
+                            lines:
+                                color: [[13, global.light_color], [15, global.light_color], [16, global.ultralight_color]]
+                                outline:
+                                    color: [[13, global.white_color], [14, global.white_color], [15, global.light_color]]
+
+            tertiary:
+                filter: { class: [tertiary, tertiary_link] }
+                draw:
+                    lines:
+                        color: [[11, global.lighter_color], [15, global.dark_color], [16, global.white_color]]
+                        width: [[11, 0.5px], [15, 1.25px], [16, 0.1px], [17, 6px], [18, 9m]]
+                        outline:
+                            color: [[11, global.white_color], [14, global.white_color], [15, global.black_color]]
+                            width: [[11, 0px], [15, 0px], [16, 1px], [17, 2px], [18, 2px]]
+                early:
+                    filter: { $zoom: { max: 15 } }
+                    draw:
+                        lines:
+                            order: 352
+                            outline:
+                                order: function() { return feature.sort_rank + 3; }
+                routes:
+                    filter: { ref: true, $zoom: { min: 12 } }
+                    draw:
+                        lines:
+                            color: [[11, global.lighter_color], [15, global.dark_color], [16, global.white_color]]
+                            width: [[11, 0.5px], [15, 1.25px], [16, 0.1px], [17, 6px], [18, 9m]]
+                            outline:
+                                color: [[11, global.white_color], [14, global.white_color], [15, global.black_color]]
+                                width: [[11, 0px], [15, 0px], [16, 1px], [17, 2px], [18, 2px]]
+                    early:
+                        filter: { $zoom: { max: 15 } }
+                        draw:
+                            lines:
+                                order: function() { return feature.sort_rank + 3; }
+                                outline:
+                                    order: 353
+                    tunnel:
+                        filter: { brunnel: tunnel, $zoom: { min: 13 } }
+                        draw:
+                            lines:
+                                color: [[13, global.light_color], [15, global.light_color], [16, global.ultralight_color]]
+                                outline:
+                                    color: [[13, global.white_color], [14, global.white_color], [15, global.light_color]]
+                link:
+                    filter: { is_link: true } # on- and off-is_links, etc
+                    draw:
+                        lines:
+                            color: [[14, global.light_color], [15, global.dark_color], [16, global.white_color]]
+                            width: [[11, 0.0px], [15, 0.5px], [16, 0.1px], [18, 4.5m]]
+                            outline:
+                                color: [[11, global.white_color], [14, global.white_color], [15, global.black_color]]
+                                width: [[11, 0px], [14, 0px], [16, 0.25px], [18, 2px]]
+
+        minor_road:
+            #filter: { class: minor, not: { subclass: service }, $zoom: { min: 8 } }
+            filter: { class: minor, service: false, $zoom: { min: 8 } }
+            draw:
+                lines:
+                    color: [[11, global.ultralight_color], [14, global.mid_color], [16, global.white_color]]
+                    width: [[11, 0.35px], [13, 0.5px], [14, 1px], [15, 1px], [16, 0.1px], [17, 4px], [18, 9m]]
+                    outline:
+                        color: [[15, global.mid_color], [17, global.black_color]]
+                        width: [[11, 0px], [15, 0px], [16, 0.75px], [17, 1.5px], [18, 1.5px]]
+            early:
+                filter: { $zoom: { max: 16 } }
+                draw:
+                    lines:
+                        order: 350
+                        outline:
+                            order: 351
+            # Is this junk code?
+            round:
+                filter: { $zoom: { min: 17 } }
+                draw:
+                    lines:
+                        cap: round
+                        join: round
+
+            tunnel:
+                filter: {brunnel: tunnel, $zoom: { min: 13 } }
+                draw:
+                    lines:
+                        color: [[13, global.light_color], [15, global.light_color], [16, global.ultralight_color]]
+                        outline:
+                            color: [[13, global.white_color], [14, global.white_color], [15, global.light_color]]
+            minor_road_bridge:
+                filter: { brunnel: bridge }
+                draw:
+                    lines:
+                        cap: round
+                        outline:
+                            cap: butt
+
+        service_road:
+            filter: [ class: service, service: true ]
+            draw:
+                lines:
+                    color: [[13, global.offwhite_color], [15, global.midlight_color], [16, global.white_color]]
+                    width: [[13, 0px], [15, 0.75px], [16, 0.1px], [17, 2.5px], [18, 5m]]
+                    outline:
+                        color: [[13, global.white_color], [14, global.white_color], [15, global.mid_color], [18, global.black_color]]
+                        width: [[13, 0px], [15, 0px], [16, 0.6px], [19, 1.5px]]
+
+        path:
+            filter:
+                all:
+                    - class: [path, portage_way]
+                not:
+                    - subclass: [steps, track, pier]
+            draw:
+                lines:
+                    color: global.white_color
+                    width: [[14, 0px], [16, 0.15px], [17, 2.5px], [20, 3m]]
+                    outline:
+                        color: [[13, global.light_color], [15, global.extralight_color]]
+                        width: [[14, 0.25px], [16, 0.35px], [17, 1px]]
+            early:
+                filter:
+                    $zoom: { max: 15 }
+                draw:
+                    lines:
+                        order: 351
+                        outline:
+                            order: 350
+            pedestrian:
+                filter: { subclass: pedestrian }
+                draw:
+                    lines:
+                        color: global.white_color
+                        width: [[14, 0px], [16, 0.15px], [17, 2.5px], [20, 3m]]
+                        outline:
+                            color: [[13, global.light_color], [15, global.extralight_color]]
+                            width: [[14, 0.25px], [16, 0.35px], [17, 1px]]
+            footway:
+                filter: { subclass: footway }
+                draw:
+                    lines:
+                        color: global.white_color
+                        width: [[14, 0px], [16, 0.15px], [17, 2.5px], [20, 3m]]
+                        outline:
+                            color: [[13, global.light_color], [15, global.mid_color]]
+                            width: [[14, 0.25px], [16, 0.35px], [17, 1px]]
+                bridge:
+                    filter: { brunnel: bridge }
+                    draw:
+                        lines:
+                            cap: round
+                            outline:
+                                color: [[13, global.light_color], [15, global.mid_color]]
+                                cap: butt
+            bridge:
+                filter: { brunnel: bridge }
+                draw:
+                    lines:
+                        cap: round
+                        outline:
+                            color: global.mid_color
+                            cap: butt
+        track:
+            filter: { class: track }
+            draw:
+                lines:
+                    color: global.white_color
+                    width: [[13, 0px], [16, 0.15px], [17, 2.5px], [20, 4m]]
+                    outline:
+                        color: [[13, global.light_color], [15, global.midlight_color]]
+                        width: [[13, 0.25px], [16, 0.5px], [17, 1px]]
+            bridge:
+                filter: { brunnel: bridge }
+                draw:
+                    lines:
+                        cap: butt
+                        color: global.white_color
+                        outline:
+                            color: [[13, global.light_color], [15, global.black_color]]
+                            cap: butt
+
+        steps:
+            filter:
+                all:
+                    - class: path
+                    - subclass: steps
+            draw:
+                lines:
+                    dash: [0.75, 0.25]
+                    dash_background_color: global.white_color
+                    order: global.feature_order
+                    color: [[15, global.light_color], [19, global.lighter_color]]
+                    width: [[15, 0.5px], [18, 3px], [19, 1.5m]]
+                    outline:
+                        color: global.offwhite_color
+                        width: [[15, 0px], [18, 1px]]
+# # transportation layer end
+
+# # transportation_name layer start
+    transportation_name:
+        data: { source: osm }
+        filter: { not: { class: rail } }
+        draw:
+            text-blend-order:
+                text_source: name
+#                visible: false    # labels are enabled by each layer below
+                font:
+                    family: global.text_font_family
+                    weight: normal
+                    fill: global.black_color
+        highway:
+            filter: {class: motorway, $zoom: { min: 8 } }
+            labels-highway-z13-z14:
+                filter:
+                    $zoom: [13,14]
+                draw:
+                    text-blend-order:
+                        priority: 50
+                        visible: global.text_visible_highway
+                        text_source: name
+                        font:
+                            fill: global.black_color
+                            weight: 600
+                            size: 11px
+                            stroke: { color: global.text_stroke, width: 4px }
+            labels-highway-z15-up:
+                filter: { $zoom: { min: 15 } }
+                draw:
+                    text-blend-order:
+                        priority: 50
+                        visible: global.text_visible_highway
+                        font:
+                            fill: global.white_color
+                            weight: 600
+                            size: [[15, 12px], [19, 16px]]
+                            stroke: { color: global.black_color, width: [[15, 3px], [17, 4px]] }
+
+        major_road:
+            filter: { $zoom: { min: 8 } }
+            trunk_primary:
+                filter: { class: [trunk, primary] }
+                routes:
+                    labels-trunk_primary-route-z13-z14:
+                        filter: { $zoom: [13,14] }
+                        draw:
+                            text-blend-order:
+                                priority: 51
+                                visible: global.text_visible_trunk_primary
+                                text_source: name
+                                font:
+                                    fill: global.dark_color
+                                    size: 11px
+                                    stroke: { color: global.text_stroke, width: 3px }
+                    labels-trunk_primary-route-z15-up:
+                        filter: { $zoom: { min: 15 } }
+                        draw:
+                            text-blend-order:
+                                priority: 51
+                                visible: global.text_visible_trunk_primary
+                                text_source: name
+                                font:
+                                    fill: global.black_color
+                                    weight: 600
+                                    size: [[15, 12px], [16, 13px], [19, 16px]]
+                                    stroke: { color: global.text_stroke, width: [[15, 4px], [17, 6px]] }
+                labels-trunk_primary-z11-z15:
+                    filter:
+                        $zoom: [11,12,13,14,15]
+                    draw:
+                        text-blend-order:
+                            priority: 51
+                            visible: global.text_visible_trunk_primary
+                            text_source: name
+                            font:
+                                fill: global.dark_color
+                                size: [[11, 10px], [15, 12px]]
+                                stroke: { color: global.text_stroke, width: 4px }
+                labels-trunk_primary-z16-up:
+                    filter: { $zoom: { min: 16 } }
+                    draw:
+                        text-blend-order:
+                            priority: 51
+                            visible: global.text_visible_trunk_primary
+                            text_source: name
+                            font:
+                                fill: [[16, global.dark_color], [18, global.black_color]]
+                                weight: 600
+                                size: [[16, 13px], [18, 13px], [19, 16px]]
+                                stroke: { color: global.text_stroke, width: [[16, 4px], [17, 6px]]}
+
+            secondary:
+                filter: { class: secondary }
+                routes:
+                    filter: { ref: true, $zoom: { min: 12 } }
+                    labels-secondary-routes-z13-z14:
+                        filter: { $zoom: [13,14] }
+                        draw:
+                            text-blend-order:
+                                priority: 56
+                                visible: global.text_visible_secondary
+                                text_source: name
+                                font:
+                                    fill: global.black_color
+                                    size: 11px
+                                    stroke: { color: global.text_stroke, width: 4px }
+                    labels-secondary-routes-z15-up:
+                        filter: { $zoom: { min: 15 } }
+                        draw:
+                            text-blend-order:
+                                priority: 56
+                                visible: global.text_visible_secondary
+                                text_source: name
+                                font:
+                                    fill: global.black_color
+                                    weight: 600
+                                    size: [[15, 11px], [17, 13px]]
+                                    stroke: { color: global.text_stroke, width: 4px }
+                labels-secondary:
+                    filter: { $zoom: { min: 13 } }
+                    draw:
+                        text-blend-order:
+                            priority: 56
+                            visible: global.text_visible_secondary
+                            text_source: name
+                            font:
+                                fill: [[13, global.dark_color], [17, global.black_color]]
+                                size: [[13, 10px], [17, 13px]]
+                                stroke: { color: global.text_stroke, width: 4px }
+            tertiary:
+                filter: { class: [tertiary, tertiary_link] }
+                labels-tertiary:
+                    filter: { $zoom: { min: 13 } }
+                    draw:
+                        text-blend-order:
+                            priority: 57
+                            visible: global.text_visible_tertiary
+                            text_source: name
+                            font:
+                                fill: [[13, global.dark_color], [18, global.black_color]]
+                                size: [[13, 10px], [17, 13px]]
+                                stroke: { color: global.text_stroke, width: 5px }
+
+        minor_road:
+            #filter: { class: minor, not: { subclass: service }, $zoom: { min: 8 } }
+            filter: { class: minor, service: false, $zoom: { min: 8 } }
+            labels-minor_road:
+                filter: { $zoom: { min: 15 } }
+                draw:
+                    text-blend-order:
+                        priority: 59
+                        visible: global.text_visible_minor_road
+                        text_source: name
+                        font:
+                            fill: [[15, global.mid_color], [18, global.black_color]]
+                            size: [[15, 10px], [18, 13px]]
+                            stroke: { color: global.text_stroke, width: 4px }
+
+        service_road:
+            filter: [ class: service, service: true ]
+            labels-service_road:
+                filter: { $zoom: { min: 17 } }
+                draw:
+                    text-blend-order:
+                        priority: 60
+                        visible: global.text_visible_service_road
+                        text_source: name
+                        font:
+                            fill: [[17, global.dark_color], [18, global.black_color]]
+                            size: [[17, 11px], [18, 12px]]
+                            stroke: { color: global.text_stroke, width: 4px }
+
+        path:
+            filter:
+                all:
+                    - class: [path, portage_way]
+                not:
+                    - subclass: [steps, track, pier]
+            labels-path:
+                filter: { $zoom: { min: 17 } }
+                draw:
+                    text-blend-order:
+                        priority: 61
+                        visible: global.text_visible_path
+                        text_source: name
+                        font:
+                            fill: global.dark_color
+                            size: 12px
+                            stroke: { color: global.text_stroke, width: 4px }
+        track:
+            filter: { class: track }
+            labels-track:
+                filter: { $zoom: { min: 17 } }
+                draw:
+                    text-blend-order:
+                        priority: 61
+                        visible: global.text_visible_path
+                        text_source: name
+                        font:
+                            fill: global.dark_color
+                            size: 12px
+                            stroke: { color: global.text_stroke, width: 4px }
+
+        steps:
+            filter:
+                all:
+                    - class: path
+                    - subclass: steps
+            labels-steps:
+                filter: { $zoom: { min: 17 } }
+                draw:
+                    text-blend-order:
+                        priority: 62
+                        visible: global.text_visible_steps
+                        text_source: name
+                        font:
+                            fill: global.mid_color
+                            size: 11px
+                            stroke: { color: global.text_stroke, width: 4px }
+# # transportation_name layer end
+

@@ -10,10 +10,9 @@
 
 @interface MapViewController ()  <CLLocationManagerDelegate>
 
-@property (assign, nonatomic) TGMarker* markerPolygon;
-@property (strong, nonatomic) TGMapData* mapData;
+//@property (assign, nonatomic) TGMarker* markerPolygon;
 @property (strong, nonatomic) CLLocationManager *locationManager;
-@property (strong, nonatomic) TGMarker* locationTrackingMarker;
+//@property (strong, nonatomic) TGMarker* locationTrackingMarker;
 
 - (void)addAlert:(NSString *)message withTitle:(NSString *)title;
 
@@ -105,6 +104,7 @@
 
 - (void)mapView:(TGMapViewController *)view recognizer:(UIGestureRecognizer *)recognizer didRecognizeSingleTapGesture:(CGPoint)location
 {
+    /*
     NSLog(@"Did tap at %f %f", location.x, location.y);
 
     MapViewController* vc = (MapViewController *)view;
@@ -159,6 +159,7 @@
     [vc pickFeatureAt:location];
     [vc pickLabelAt:location];
     // [vc pickMarkerAt:location];
+     */
 }
 
 - (void)mapView:(TGMapViewController *)view recognizer:(UIGestureRecognizer *)recognizer didRecognizeLongPressGesture:(CGPoint)location
@@ -170,6 +171,102 @@
 
 @implementation MapViewController
 
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ (MapViewController *) shared
+{
+    static __strong MapViewController* sharedController;
+    if(sharedController == NULL) {
+        sharedController = [[MapViewController alloc] initWithNibName: NULL bundle: NULL];
+    }
+    return sharedController;
+}
+
+- (void) goLocation: (CLLocationCoordinate2D) location{
+    [self setPosition:TGGeoPointMake(location.longitude, location.latitude)];
+    [self setZoom:18];
+}
+
+- (void) showPath: (int)size color:(NSString*)color simulatedLocationDatas:(SimulatedLocationData *)coordinates{
+    CGSize pointSize = CGSizeMake(20, 20);
+    NSString *pathColor =  [NSString stringWithFormat: @"#%@", @"0eff00"];
+    TGFeatureProperties* properties = @{ @"type" : @"line", @"color" : pathColor };
+
+    TGGeoPolyline* line = [[TGGeoPolyline alloc] init];
+    
+    for(int i = 0; i < size; i ++){
+        TGMarker* markerPoint = [self markerAdd];
+        markerPoint.stylingString =
+        [NSString stringWithFormat:@"{ style: 'points', color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
+        markerPoint.point = TGGeoPointMake(coordinates[i].lng, coordinates[i].lat);
+        [line addPoint:TGGeoPointMake(coordinates[i].lng, coordinates[i].lat)];
+    }
+    [self.mapData addPolyline:line withProperties:properties];
+}
+
+- (void) showPath: (int)size color:(NSString*)color cLLocationCoordinate2Ds:(CLLocationCoordinate2D *)coordinates{
+    CGSize pointSize = CGSizeMake(5, 5);
+    NSString *pathColor =  [NSString stringWithFormat: @"#%@", @"0ed800"];
+    TGFeatureProperties* properties = @{ @"type" : @"line", @"color" : pathColor };
+    
+    TGGeoPolyline* line = [[TGGeoPolyline alloc] init];
+    
+    for(int i = 0; i < size; i ++){
+        TGMarker* markerPoint = [self markerAdd];
+        markerPoint.stylingString =
+        [NSString stringWithFormat:@"{ style: 'points', color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
+        markerPoint.point = TGGeoPointMake(coordinates[i].longitude, coordinates[i].latitude);
+        [line addPoint:TGGeoPointMake(coordinates[i].longitude, coordinates[i].latitude)];
+    }
+    [self.mapData addPolyline:line withProperties:properties];
+}
+
+- (void) makeMarker_points: (int)size color:(NSString*)color simulatedLocationDatas:(SimulatedLocationData *)coordinates{
+    CGSize pointSize = CGSizeMake(5, 5);
+    
+    for(int i = 0; i < size; i ++){
+        TGMarker* markerPoint = [self markerAdd];
+        markerPoint.stylingString =
+        [NSString stringWithFormat:@"{ style: 'points', color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
+        markerPoint.point = TGGeoPointMake(coordinates[i].lng, coordinates[i].lat);
+    }
+}
+
+- (void) makeMarker_points: (int)size color:(NSString*)color cLLocationCoordinate2Ds:(CLLocationCoordinate2D *)coordinates{
+    CGSize pointSize = CGSizeMake(20, 20);
+    
+    for(int i = 0; i < size; i ++){
+        TGMarker* markerPoint = [self markerAdd];
+        markerPoint.stylingString =
+        [NSString stringWithFormat:@"{ style: 'points', color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
+        markerPoint.point = TGGeoPointMake(coordinates[i].longitude, coordinates[i].latitude);
+    }
+}
+
+- (void) makeMarker_polyline: (int)size color:(NSString*)color simulatedLocationDatas:(SimulatedLocationData *)coordinates{
+    NSString *pathColor =  [NSString stringWithFormat: @"#%@", color];
+    TGFeatureProperties* properties = @{ @"type" : @"line", @"color" : pathColor };
+    
+    TGGeoPolyline* line = [[TGGeoPolyline alloc] init];
+    
+    for(int i = 0; i < size; i ++){
+        [line addPoint:TGGeoPointMake(coordinates[i].lng, coordinates[i].lat)];
+    }
+    [self.mapData addPolyline:line withProperties:properties];
+}
+
+- (void) makeMarker_polyline: (int)size color:(NSString*)color cLLocationCoordinate2Ds:(CLLocationCoordinate2D *)coordinates{
+    NSString *pathColor =  [NSString stringWithFormat: @"#%@", color];
+    TGFeatureProperties* properties = @{ @"type" : @"line", @"color" : pathColor };
+    
+    TGGeoPolyline* line = [[TGGeoPolyline alloc] init];
+    
+    for(int i = 0; i < size; i ++){
+        [line addPoint:TGGeoPointMake(coordinates[i].longitude, coordinates[i].latitude)];
+    }
+    [self.mapData addPolyline:line withProperties:properties];
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 - (void)addAlert:(NSString *)message withTitle:(NSString *)title
 {
     UIAlertController *alert = [[UIAlertController alloc] init];
@@ -192,9 +289,12 @@
 
     NSMutableArray<TGSceneUpdate *>* updates = [[NSMutableArray alloc]init];
     [updates addObject:[[TGSceneUpdate alloc]initWithPath:@"global.sdk_api_key" value:apiKey]];
-
-    [super loadSceneAsyncFromURL:[NSURL URLWithString:@"https://tangrams.github.io/walkabout-style/walkabout-style.yaml"] withUpdates:updates];
-
+    NSString *paths = [[NSBundle mainBundle] pathForResource:@"refill-style" ofType:@"yaml"];
+    
+    NSURL *path = [NSURL fileURLWithPath:paths];
+    [super loadSceneAsyncFromURL:path withUpdates:updates];
+    //[super loadSceneAsyncFromURL:[NSURL URLWithString:@"https://tangrams.github.io/refill-style/refill-style.yaml"] withUpdates:updates];
+/*
     //Location tracking marker setup
     TGMarker* markerPoint = [self markerAdd];
     markerPoint.stylingString = @"{ style: 'points', color: 'white', size: [25px, 25px], collide: false }";
@@ -203,6 +303,7 @@
     newYork.latitude = 40.70532700869127;
     markerPoint.point = newYork;
     self.locationTrackingMarker = markerPoint;
+ */
 }
 
 - (void)viewDidLoad
@@ -229,9 +330,11 @@
 #pragma mark - Location Manager Delegate
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    /*
     NSLog(@"Locations came in - %@", locations);
     TGGeoPoint point = TGGeoPointMake(locations[0].coordinate.longitude, locations[0].coordinate.latitude);
     [self.locationTrackingMarker pointEased:point seconds:1.0 easeType:TGEaseTypeCubic];
+     */
 }
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
