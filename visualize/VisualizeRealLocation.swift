@@ -21,7 +21,14 @@ class VisualizeRealLocation {
         
         VisualizeUtil().makePolyline(locationList: locationList, color: polylineColor)
         VisualizeUtil().makePoints(locationList: locationList, color: pointColor)
-        
+        print("========================================timestamp============================================")
+        var preLcation : Double = locationList[0].timestamp;
+        for loc in locationList{
+            print(loc.timestamp - preLcation)
+            preLcation = loc.timestamp
+        }
+        print("=============================================================================================")
+
         let mapViewController = MapViewController.shared()
         mapViewController?.goLocation(CLLocationCoordinate2D(latitude: locationList[0].lat, longitude: locationList[0].lng))
     }

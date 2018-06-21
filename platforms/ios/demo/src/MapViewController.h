@@ -51,7 +51,6 @@ typedef struct SimulatedLocationData {
 - (void)mapView:(nonnull TGMapViewController *)mapView didSelectLabel:(nullable TGLabelPickResult *)labelPickResult atScreenPosition:(CGPoint)position;
 - (void)mapView:(nonnull TGMapViewController *)mapView didSelectMarker:(nullable TGMarkerPickResult *)markerPickResult atScreenPosition:(TGGeoPoint)position;
 - (void)mapView:(nonnull TGMapViewController *)view didCaptureScreenshot:(nonnull UIImage *)screenshot;
-
 @end
 
 @interface MapViewControllerRecognizerDelegate : NSObject <TGRecognizerDelegate>

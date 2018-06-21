@@ -51,9 +51,9 @@ class VisualizeMainViewController: UIViewController {
     
     @IBAction func runAction(_ sender: UIButton) {
         // run script
-        print(typeField.text)
-        print(pointColorField.text)
-        print(polylineColorField.text)
+        print(typeField.text ?? "null")
+        print(pointColorField.text ?? "null")
+        print(polylineColorField.text ?? "null")
         print(scriptText.text)
         
         switch typeField.text?.lowercased() {
@@ -73,6 +73,36 @@ class VisualizeMainViewController: UIViewController {
                 }
                 mapViewController.goLocation(CLLocationCoordinate2D(latitude: lnglat[0], longitude: lnglat[1]))
             }
+        case "roadsegment":
+            let pointColor = pointColorField.text ?? "0ed864"
+            let polylineColor = polylineColorField.text ?? "0ed864"
+            
+            
+        case "point":
+            // [ [37.612500926514727, 126.83415002201389] ]
+            // [ [37.612500926514727, 126.83415002201389],[37.612500926514727, 126.83415002201389] ]
+            let pointColor = pointColorField.text ?? "0ed864"
+            if let location = scriptText.text {
+                if location.count == 0 {
+                    return
+                }
+                let data = location.data(using: .utf8)!
+
+                guard let jsonData = try? JSONSerialization.jsonObject(with: data, options: []) as! [Any] else {
+                    return
+                }
+                var locations : [CLLocationCoordinate2D] = []
+                for i in jsonData {
+                    guard let lnglat = i as? [Double] else {
+                        return
+                    }
+                    locations.append(CLLocationCoordinate2D(latitude: lnglat[0], longitude: lnglat[1]))
+                    
+                }
+                VisualizeUtil().makePoints(locationList: locations, color: pointColor)
+            }
+        case "estimation":
+            print("working on it")
         default:
             return
         }

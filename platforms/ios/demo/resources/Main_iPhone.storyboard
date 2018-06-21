@@ -40,7 +40,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hfc-qJ-8uN">
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="0ed864" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hfc-qJ-8uN">
                                         <rect key="frame" x="55" y="257.5" width="100" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="100" id="MeR-bX-fpt"/>
@@ -55,7 +55,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="7MP-0S-8HV">
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="c9caca" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="7MP-0S-8HV">
                                         <rect key="frame" x="230" y="257.5" width="100" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="100" id="qfb-5z-TNJ"/>
@@ -90,7 +90,7 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QRj-2q-iMH">
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="go" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="QRj-2q-iMH">
                                         <rect key="frame" x="171" y="3" width="100" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="100" id="B5e-dJ-FJV"/>
@@ -179,7 +179,7 @@
                 </glkViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="btX-cZ-eVz" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="93" y="-20"/>
+            <point key="canvasLocation" x="88" y="17"/>
         </scene>
     </scenes>
 </document>

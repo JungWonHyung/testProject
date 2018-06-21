@@ -54,7 +54,7 @@
     vc.mapData = [mapView addDataLayer:@"mz_route_line_transit"];
 }
 
-- (void)mapView:(TGMapViewController *)mapView didSelectMarker:(TGMarkerPickResult *)markerPickResult atScreenPosition:(TGGeoPoint)position;
+- (void)mapView:(TGMapViewController *)mapView didSelectMarker:(TGMarkerPickResult *)markerPickResult atScreenPosition:(TGGeoPoint)position
 {
     if (!markerPickResult) {
         return;
@@ -172,6 +172,7 @@
 @implementation MapViewController
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + (MapViewController *) shared
 {
     static __strong MapViewController* sharedController;
@@ -236,8 +237,8 @@
     
     for(int i = 0; i < size; i ++){
         TGMarker* markerPoint = [self markerAdd];
-        markerPoint.stylingString =
-        [NSString stringWithFormat:@"{ style: 'points', color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
+        markerPoint.stylingString = 
+        [NSString stringWithFormat:@"{ style: 'points',interactive: true, color: '#%@', size: [%fpx, %fpx], order:501, collide: false}", color,pointSize.width, pointSize.height];
         markerPoint.point = TGGeoPointMake(coordinates[i].longitude, coordinates[i].latitude);
     }
 }
@@ -267,6 +268,8 @@
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 - (void)addAlert:(NSString *)message withTitle:(NSString *)title
 {
     UIAlertController *alert = [[UIAlertController alloc] init];
