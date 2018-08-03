@@ -20,6 +20,7 @@ set(SQLITECPP_INTERNAL_SQLITE OFF CACHE BOOL "")
 # static library target, relative paths cause it to fail with an error.
 set(TANGRAM_FRAMEWORK_HEADERS
   ${PROJECT_SOURCE_DIR}/platforms/ios/framework/src/TangramMap.h
+  ${PROJECT_SOURCE_DIR}/core/trimm/VectorFont.h
   ${PROJECT_SOURCE_DIR}/platforms/ios/framework/src/TGExport.h
   ${PROJECT_SOURCE_DIR}/platforms/ios/framework/src/TGGeoPolyline.h
   ${PROJECT_SOURCE_DIR}/platforms/ios/framework/src/TGGeoPolygon.h
@@ -39,6 +40,7 @@ set(TANGRAM_FRAMEWORK_SOURCES
   platforms/common/platform_gl.cpp
   platforms/common/appleAllowedFonts.h
   platforms/common/appleAllowedFonts.mm
+  ${PROJECT_SOURCE_DIR}/core/trimm/VectorFont.cpp
   platforms/ios/framework/src/iosPlatform.h
   platforms/ios/framework/src/iosPlatform.mm
   platforms/ios/framework/src/TGHelpers.h
@@ -80,6 +82,12 @@ target_link_libraries(TangramMap PRIVATE
 
 target_include_directories(TangramMap PRIVATE
   platforms/common
+  # FOR TRIMM
+  core/deps/alfons/src
+  core/deps/harfbuzz-icu-freetype/freetype/include
+  core/deps/glm
+  core/deps/harfbuzz-icu-freetype/harfbuzz/src
+  core/deps/harfbuzz-icu-freetype/harfbuzz-generated
 )
 
 set_target_properties(TangramMap PROPERTIES
