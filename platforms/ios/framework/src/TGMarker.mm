@@ -165,6 +165,7 @@
     CGContextDrawImage(cgContext, CGRectMake(0, 0, w, h), cgImage);
     CGContextRelease(cgContext);
 
+    /*
     // For each pixel in the image, convert from BGRA to RGBA and if A != 0 then un-pre-multiply alpha.
     // TODO: This is wasteful! Instead we could ingest pre-multiplied data with a flag or enum and
     // alter the rendering mode for this texture appropriately. -MEB 3.30.18
@@ -181,6 +182,7 @@
             p[2] = b * 255 / a;
         }
     }
+    */
 
     if (!tangramInstance->markerSetBitmap(self.identifier, w, h, bitmap.data())) {
         [self createNSError];
