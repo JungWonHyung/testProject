@@ -491,6 +491,7 @@ void Map::render() {
 
     // Do not render if any texture resources are in process of being downloaded
     if (impl->scene->pendingTextures > 0) {
+        LOG("Render but pending texture");
         return;
     }
 

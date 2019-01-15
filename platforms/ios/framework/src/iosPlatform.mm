@@ -140,6 +140,7 @@ FontSourceHandle iOSPlatform::systemFont(const std::string& _name, const std::st
 
 UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
     __strong TGMapViewController* mapViewController = m_viewController;
+    __weak TGMapViewController* vcForHandler = m_viewController;
 
     UrlResponse errorResponse;
     if (!mapViewController) {
@@ -157,6 +158,10 @@ UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
     }
 
     TGDownloadCompletionHandler handler = ^void (NSData* data, NSURLResponse* response, NSError* error) {
+
+        __strong TGMapViewController* mapViewController = vcForHandler;
+        
+        if(mapViewController != m_viewController) return;
 
         // Create our response object. The '__block' specifier is to allow mutation in the data-copy block below.
         __block UrlResponse urlResponse;

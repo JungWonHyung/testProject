@@ -139,7 +139,9 @@ bool MarkerManager::setPoint(MarkerID markerID, LngLat lngLat) {
     if (!marker->mesh() || !marker->feature() || marker->feature()->geometryType != GeometryType::points) {
         auto feature = std::make_unique<Feature>();
         feature->geometryType = GeometryType::points;
-        feature->points.emplace_back();
+        //feature->points.emplace_back();
+	feature->points.push_back(Point());
+	return true;
         marker->setFeature(std::move(feature));
         buildMesh(*marker, m_zoom);
     }
