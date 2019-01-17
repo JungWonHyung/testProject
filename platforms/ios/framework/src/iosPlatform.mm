@@ -158,14 +158,14 @@ UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
     }
 
     TGDownloadCompletionHandler handler = ^void (NSData* data, NSURLResponse* response, NSError* error) {
-
+        
         __strong TGMapViewController* mapViewController = vcForHandler;
         
         if(mapViewController != m_viewController) return;
 
         // Create our response object. The '__block' specifier is to allow mutation in the data-copy block below.
         __block UrlResponse urlResponse;
-
+        
         // Check for errors from NSURLSession, then check for HTTP errors.
         if (error != nil) {
 
@@ -179,7 +179,7 @@ UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
                 urlResponse.error = [[NSHTTPURLResponse localizedStringForStatusCode: statusCode] UTF8String];
             }
         }
-
+        
         // Copy the data from the NSURLResponse into our URLResponse.
         // First we allocate the total data size.
         urlResponse.content.resize([data length]);
@@ -188,16 +188,17 @@ UrlRequestHandle iOSPlatform::startUrlRequest(Url _url, UrlCallback _callback) {
         [data enumerateByteRangesUsingBlock:^(const void * _Nonnull bytes, NSRange byteRange, BOOL * _Nonnull stop) {
             memcpy(urlResponse.content.data() + byteRange.location, bytes, byteRange.length);
         }];
-
+        
         // Run the callback from the requester.
         if (_callback) {
+            
             _callback(urlResponse);
+            
         }
     };
 
     NSString* url = [NSString stringWithUTF8String:_url.string().c_str()];
     NSUInteger taskIdentifier = [httpHandler downloadRequestAsync:url completionHandler:handler];
-
     return taskIdentifier;
 }
 

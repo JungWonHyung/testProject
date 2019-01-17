@@ -7,7 +7,7 @@
 
 namespace Tangram {
 
-class iOSPlatform : public Platform {
+    class iOSPlatform : public Platform {
 
 public:
 

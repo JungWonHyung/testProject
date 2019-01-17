@@ -50,6 +50,12 @@ __CG_STATIC_ASSERT(sizeof(TGGeoPoint) == sizeof(Tangram::LngLat));
     return [self.markersById allValues];
 }
 
+- (void)setOffline:(BOOL)mode
+{
+    [_httpHandler setOfflineMode:mode];
+}
+
+
 - (TGMarker*)markerAdd
 {
     TGMarker* marker = [[TGMarker alloc] initWithMap:self.map];

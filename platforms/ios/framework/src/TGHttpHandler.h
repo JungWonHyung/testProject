@@ -14,6 +14,7 @@
  completed an asynchronous request.
 */
 typedef void(^TGDownloadCompletionHandler)(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error);
+typedef void(^offlineDownloadCompletionHandler)(NSString * _Nonnull url , NSError * _Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,6 +75,10 @@ TG_EXPORT
  @note This method will be automatically called by the map view instance.
  */
 - (NSUInteger)downloadRequestAsync:(NSString *)url completionHandler:(TGDownloadCompletionHandler)completionHandler;
+-(NSUInteger)offlineMapDownloadWithURL:(NSString*)url successfunc:(offlineDownloadCompletionHandler)successFunc;
+
+- (void)setOfflineMode:(BOOL)isOffline;
+
 
 /**
  Cancels a download request for a specific URL.

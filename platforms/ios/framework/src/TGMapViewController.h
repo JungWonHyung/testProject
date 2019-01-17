@@ -339,9 +339,9 @@ TG_EXPORT
 #pragma mark Delegates
 
 /// Assign a gesture recognizer delegate, may be `nil`, see `TGRecognizerDelegate` for more details
-@property (weak, nonatomic, nullable) id<TGRecognizerDelegate> gestureDelegate;
+@property (strong, nonatomic, nullable) id<TGRecognizerDelegate> gestureDelegate;
 /// Assign a map viw delegate, may be `nil`, see `TGMapViewDelegate` for more details
-@property (weak, nonatomic, nullable) id<TGMapViewDelegate> mapViewDelegate;
+@property (strong, nonatomic, nullable) id<TGMapViewDelegate> mapViewDelegate;
 
 #pragma mark Camera/View modifiers
 
@@ -439,6 +439,8 @@ TG_EXPORT
  @note You cannot create more than one data source with the same name, otherwise the same
  object will be returned.
  */
+- (void)setOffline:(BOOL)mode;
+
 - (nullable TGMapData *)addDataLayer:(NSString *)name;
 
 /**

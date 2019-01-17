@@ -88,6 +88,7 @@ target_include_directories(TangramMap PRIVATE
   core/deps/glm
   core/deps/harfbuzz-icu-freetype/harfbuzz/src
   core/deps/harfbuzz-icu-freetype/harfbuzz-generated
+  core/deps/harfbuzz-icu-freetype/icu/common
 )
 
 set_target_properties(TangramMap PROPERTIES
