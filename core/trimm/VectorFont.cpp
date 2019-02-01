@@ -64,8 +64,8 @@ namespace ratiobike {
                 font->addFace(fontMan.addFontFace(*source, fSize));
             }
         }
-
-        alfons::LineLayout line = shaper.shape(font, str);
+        string addSpaceStr = str.append(" ");
+        alfons::LineLayout line = shaper.shape(font, addSpaceStr);
         uint32_t byteWidth = ((maxWidth + 7) >> 3);
     
         float xf = 0.0, yf = 0.0;
