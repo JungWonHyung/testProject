@@ -1,0 +1,35 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion 27
+
+  def apiKey = project.hasProperty('nextzenApiKey') ? nextzenApiKey : System.getenv('NEXTZEN_API_KEY')
+
+  defaultConfig {
+    minSdkVersion 15
+    targetSdkVersion 27
+    buildConfigField 'String', 'NEXTZEN_API_KEY', '"' + apiKey + '"'
+  }
+
+  sourceSets.main {
+    assets.srcDirs = ['../../../scenes']
+  }
+
+  aaptOptions.ignoreAssetsPattern "!*.ttf"
+
+  buildTypes {
+    debug {
+      debuggable true
+      jniDebuggable true
+    }
+    release {
+      minifyEnabled true
+    }
+  }
+
+}
+
+dependencies {
+  implementation project(path: ':tangram')
+  implementation 'com.android.support:design:27.1.1'
+}
