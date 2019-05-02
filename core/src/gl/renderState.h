@@ -10,6 +10,7 @@
 namespace Tangram {
 
 class Disposer;
+class Scene;
 class Texture;
 
 class RenderState {
@@ -88,9 +89,7 @@ public:
 
     bool shaderProgram(GLuint program);
 
-    bool texture(GLenum target, GLuint handle);
-
-    bool textureUnit(GLuint unit);
+    void texture(GLuint handle, GLuint unit, GLenum target);
 
     bool vertexBuffer(GLuint handle);
 
@@ -125,7 +124,16 @@ public:
     std::unordered_map<std::string, GLuint> fragmentShaders;
     std::unordered_map<std::string, GLuint> vertexShaders;
 
+    float frameTime() { return m_frameTime; }
+
+    friend class Scene;
+
+protected:
+    void setFrameTime(float _time) { m_frameTime = _time; }
+
 private:
+
+    float m_frameTime = 0.f;
 
     std::mutex m_deletionListMutex;
     std::vector<GLuint> m_VAODeletionList;

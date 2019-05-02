@@ -34,7 +34,7 @@ class TileManager {
 
 public:
 
-    TileManager(std::shared_ptr<Platform> platform, TileTaskQueue& _tileWorker);
+    TileManager(Platform& platform, TileTaskQueue& _tileWorker);
 
     virtual ~TileManager();
 
@@ -48,6 +48,8 @@ public:
 
     void clearTileSet(int32_t _sourceId);
 
+    void cancelTileTasks();
+
     /* Returns the set of currently visible tiles */
     const auto& getVisibleTiles() const { return m_tiles; }
 
@@ -57,13 +59,13 @@ public:
         return m_tilesInProgress > 0;
     }
 
-    std::shared_ptr<TileSource> getClientTileSource(int32_t sourceID);
+    std::shared_ptr<TileSource> getClientTileSource(int32_t _sourceId);
 
     void addClientTileSource(std::shared_ptr<TileSource> _source);
 
-    bool removeClientTileSource(TileSource& _source);
+    bool removeClientTileSource(int32_t _sourceId);
 
-    std::unique_ptr<TileCache>& getTileCache() { return m_tileCache; }
+    const std::unique_ptr<TileCache>& getTileCache() const { return m_tileCache; }
 
     /* @_cacheSize: Set size of in-memory tile cache in bytes.
      * This cache holds recently used <Tile>s that are ready for rendering.
@@ -78,6 +80,7 @@ protected:
     struct TileSet {
         TileSet(std::shared_ptr<TileSource> _source, bool _clientSource);
         ~TileSet();
+        void cancelTasks();
 
         std::shared_ptr<TileSource> source;
 
@@ -86,6 +89,11 @@ protected:
 
         int64_t sourceGeneration = 0;
         bool clientTileSource;
+
+        TileSet(const TileSet&) = delete;
+        TileSet(TileSet&&) = default;
+        TileSet& operator=(const TileSet&) = delete;
+        TileSet& operator=(TileSet&&) = default;
     };
 
     void updateTileSet(TileSet& tileSet, const ViewState& _view);
